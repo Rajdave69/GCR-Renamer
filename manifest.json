@@ -5,5 +5,11 @@
   "background": {
     "service_worker": "background.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["https://classroom.google.com/*"],
+      "js": ["rename.js"]
+    }
+  ],
   "action": {}
 }
