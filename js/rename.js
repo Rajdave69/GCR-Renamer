@@ -33,52 +33,51 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-sleep(1).then( () => (
-    get_info().then((result) => {
+sleep(1).then( () => (  // After sleeping...
+    get_info().then((result) => {   // After getting user info from storage...
     console.log(`Userinfo ${result}`);
-    if (result['default_account'] == null) {
+
+    if (result['default_account'] == null) {    // If no default account is set
         console.log(`Default account is not set`);
     }
-    else {
-        // change path account number to default account number
 
-        if (acc_number == result['default_account'])
-        {
-            console.log("Line 47, account number is SAME as default account number");
-            console.log("Already on default account");
+    else {  // If default account is set...
+
+        if (acc_number == result['default_account']) {  // If default account is the account signed into
+            console.log("Already on default account: Current Account number is same as default_account number");
         }
-        else {
-            console.log("Line 51, account number is DIFFERENT from default account number");
-            console.log(acc_number)
-            console.log(result['default_account'])
-        location = `https://classroom.google.com/u/${result['default_account']}/h`;
+
+        else {  // If default account is not the account signed into
+            console.log("Not on default account: Current Account number is different from default_account number");
+            location = `https://classroom.google.com/u/${result['default_account']}/h`;
         }
 
     }
-}).then(
+
+    }).then (    // After getting the user-info and checking if it's the default account...
+        get_account_info(acc_number).then( (result) => {    // Get Google Classroom subject and section info for the account signed into
+            console.log(result);
+
+            let subject_list = result["subject_names"]; // Get the list of subjects for the account signed into
+            let section_list = result["section_names"]; // Get the list of sections for the account signed into
+            console.log(subject_list)
+            console.log(section_list)
+
+            // check if subject list and section list are empty
+            if (subject_list.length === 0 || section_list.length === 0) {   // If subject list or section list is empty
+                console.log("Subject or section list is empty");
+            }
+
+            else {  // If subject list or section list is not empty
+                setInterval(() => {   // Check every second
+                    renameSection();
+                    renameSubject();
+                }, 1000);
 
 
-get_account_info(acc_number).then( (result) => {
-    console.log(result);
-    // get subject_name and section_name lists from result
-    subject_list = result["subject_names"];
-    section_list = result["section_names"];
-    console.log(subject_list)
-    console.log(section_list)
-
-    // check if subject list and section list are empty
-    if (subject_list.length === 0 || section_list.length === 0) {
-        console.log("Subject or section list is empty");
-    }
-    else {
-        setInterval(() =>{
-   renameSection();
-   renameSubject();
-}, 1000);
-
-
-    }
-}))
+                }
+        })
+    )
 ));
 
 
@@ -93,7 +92,7 @@ get_account_info(acc_number).then( (result) => {
 function renameSubject() {
     let subject = document.getElementsByClassName("z3vRcc-ZoZQ1");  // Find the elements
 
-    for(let i = 0; i < subject.length; i++){    // For each subject element, change it
+    for (let i = 0; i < subject.length; i++) {    // For each subject element, change it
     subject[i].innerText = subject_list[i];        // Change the content
     }
 }
@@ -103,7 +102,7 @@ function renameSubject() {
 function renameSection() {
     let section = GetElementsByExactClassName("YVvGBb");
 
-    for(let i = 1; i < section.length; i++){    //Find The Element(s)
+    for (let i = 1; i < section.length; i++) {    //Find The Element(s)
      section[i].innerText = section_list[i];    // Change the content
     }
 }

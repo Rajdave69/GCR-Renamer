@@ -16,11 +16,9 @@ function set_info(account_info) {
 
 function set_account_info(account_number, info) {
     return new Promise(function (resolve) {
-    _location = `account_info_${account_number}`;
-    console.log(_location)
+        _location = `account_info_${account_number}`;
 
-chrome.storage.local.set(
-            { [_location]: JSON.stringify(info) },
+        chrome.storage.local.set({ [_location]: JSON.stringify(info) },
             () => {
                 console.log('Value for ' + _location + ' set to ');
                 console.log(info);
@@ -28,7 +26,7 @@ chrome.storage.local.set(
             }
         )
 
-});
+    });
 }
 
 
@@ -41,7 +39,7 @@ set_account_info(1, {
 
 
 
-set_info({"number_of_accounts": 1}); //, "default_account": 1
+set_info({"number_of_accounts": 1, "default_account": 1});
 
 get_info().then((result) => {
     console.log(result);
