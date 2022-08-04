@@ -4,7 +4,12 @@ Subject Text-Box => z3vRcc-ZoZQ1
 Section Text-Box => YVvGBb
  */
 
+acc_number = location.pathname
+acc_number = acc_number.substring(3);
+acc_number = acc_number.substring(0, acc_number.indexOf("/"));
+console.log(`Signed in Google Account number is ${acc_number}`);
 
+console.log(acc_number.substring(3).substring(0, acc_number.indexOf("/")));
 
 function get_account_info(account_number) {
     return new Promise( (resolve) => {
@@ -16,20 +21,64 @@ function get_account_info(account_number) {
     });
 }
 
+function get_info() {
+    return new Promise(function (resolve) {
+        chrome.storage.local.get(['info'], function (result) {
+            resolve(result.info);
+        });
+    });
+}
 
-// sleep for 3 seconds
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 sleep(1).then( () => (
-get_account_info(1).then( (result) => {
+    get_info().then((result) => {
+    console.log(`Userinfo ${result}`);
+    if (result['default_account'] == null) {
+        console.log(`Default account is not set`);
+    }
+    else {
+        // change path account number to default account number
+
+        if (acc_number == result['default_account'])
+        {
+            console.log("Line 47, account number is SAME as default account number");
+            console.log("Already on default account");
+        }
+        else {
+            console.log("Line 51, account number is DIFFERENT from default account number");
+            console.log(acc_number)
+            console.log(result['default_account'])
+        location = `https://classroom.google.com/u/${result['default_account']}/h`;
+        }
+
+    }
+}).then(
+
+
+get_account_info(acc_number).then( (result) => {
     console.log(result);
     // get subject_name and section_name lists from result
     subject_list = result["subject_names"];
     section_list = result["section_names"];
     console.log(subject_list)
     console.log(section_list)
-})
+
+    // check if subject list and section list are empty
+    if (subject_list.length === 0 || section_list.length === 0) {
+        console.log("Subject or section list is empty");
+    }
+    else {
+        setInterval(() =>{
+   renameSection();
+   renameSubject();
+}, 1000);
+
+
+    }
+}))
 ));
 
 
@@ -38,11 +87,6 @@ get_account_info(1).then( (result) => {
 
 
 // Run every 1 second
-setInterval(function(){
-   renameSection();
-   renameSubject();
-}, 1000);
-
 
 
 // Renames the Subject Text-Box

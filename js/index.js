@@ -1,4 +1,4 @@
-/*
+
 function get_info() {
     return new Promise(function (resolve) {
         chrome.storage.local.get(['info'], function (result) {
@@ -12,8 +12,6 @@ function set_info(account_info) {
         console.log('Value is set to ' + account_info);
     });
 }
-
-*/
 
 
 function set_account_info(account_number, info) {
@@ -43,14 +41,8 @@ set_account_info(1, {
 
 
 
+set_info({"number_of_accounts": 1}); //, "default_account": 1
 
-
-/*
-
-set_info({"number_of_accounts": 1, "primary_account": 1});
-
-get_info().then(function (result) {
+get_info().then((result) => {
     console.log(result);
 })
-
-*/
