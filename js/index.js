@@ -17,15 +17,20 @@ function set_info(account_info) {
 
 
 function set_account_info(account_number, info) {
-    return new Promise(function (account_number) {
+    return new Promise(function (resolve) {
     _location = `account_info_${account_number}`;
     console.log(_location)
 
-    chrome.storage.local.set({_location: info}, () => {
-       console.log('Value for ' + _location + ' set to ');
-        console.log(info);
+chrome.storage.local.set(
+            { [_location]: JSON.stringify(info) },
+            () => {
+                console.log('Value for ' + _location + ' set to ');
+                console.log(info);
+                resolve();
+            }
+        )
 
-    })});
+});
 }
 
 

@@ -5,31 +5,31 @@ Section Text-Box => YVvGBb
  */
 
 
-const subject_list = ["Main Class Group", "English", "History/Geography",
-"Economics/Civics", "Hindi", "Biology", "Physics", "Chemistry", "Math", "AI",
-"Mental Ability", "Art"];
-
-const section_list = ["Class Group"]
-
 
 function get_account_info(account_number) {
     return new Promise( (resolve) => {
         storage_location = `account_info_${account_number}`;
         console.log(storage_location);
         chrome.storage.local.get([storage_location], function (result) {
-            resolve(result);
+            resolve(JSON.parse(result[storage_location]));
         });
     });
 }
+
+
 // sleep for 3 seconds
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-sleep(3333).then( () => (
+sleep(1).then( () => (
 get_account_info(1).then( (result) => {
-    e = result;
     console.log(result);
-} )
+    // get subject_name and section_name lists from result
+    subject_list = result["subject_names"];
+    section_list = result["section_names"];
+    console.log(subject_list)
+    console.log(section_list)
+})
 ));
 
 
