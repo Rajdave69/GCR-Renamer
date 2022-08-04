@@ -33,6 +33,38 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function get_default_items(account_number) {
+    return new Promise((resolve) => {
+        let subject = GetElementsByExactClassName("z3vRcc-ZoZQ1").length;
+        let section = GetElementsByExactClassName("YVvGBb").length;
+        // GET Length of Subject and Section
+
+
+        main_list = {
+            "subject": subject,
+            "section": section
+        }
+        console.log(main_list)
+
+        __location = `class_info_${account_number}`;
+        chrome.storage.local.set({ [__location]: JSON.stringify(main_list) },
+            () => {
+                console.log('Value for ' + __location + ' set to ');
+                console.log(main_list);
+                resolve();
+            }
+        )
+    });
+}
+
+get_default_items(acc_number).then(
+    () => {
+        console.log("Default items set");
+    }
+);
+
+
+
 sleep(1).then( () => (  // After sleeping...
     get_info().then((result) => {   // After getting user info from storage...
     console.log(`Userinfo ${result}`);
@@ -58,8 +90,8 @@ sleep(1).then( () => (  // After sleeping...
         get_account_info(acc_number).then( (result) => {    // Get Google Classroom subject and section info for the account signed into
             console.log(result);
 
-            let subject_list = result["subject_names"]; // Get the list of subjects for the account signed into
-            let section_list = result["section_names"]; // Get the list of sections for the account signed into
+            const subject_list = result["subject_names"]; // Get the list of subjects for the account signed into
+            const section_list = result["section_names"]; // Get the list of sections for the account signed into
             console.log(subject_list)
             console.log(section_list)
 
@@ -70,8 +102,8 @@ sleep(1).then( () => (  // After sleeping...
 
             else {  // If subject list or section list is not empty
                 setInterval(() => {   // Check every second
-                    renameSection();
-                    renameSubject();
+                    renameSection(section_list);
+                    renameSubject(subject_list);
                 }, 1000);
 
 
@@ -89,7 +121,7 @@ sleep(1).then( () => (  // After sleeping...
 
 
 // Renames the Subject Text-Box
-function renameSubject() {
+function renameSubject(subject_list) {
     let subject = document.getElementsByClassName("z3vRcc-ZoZQ1");  // Find the elements
 
     for (let i = 0; i < subject.length; i++) {    // For each subject element, change it
@@ -99,7 +131,7 @@ function renameSubject() {
 
 
 // Renames the Section Text-Box
-function renameSection() {
+function renameSection(section_list) {
     let section = GetElementsByExactClassName("YVvGBb");
 
     for (let i = 1; i < section.length; i++) {    //Find The Element(s)
