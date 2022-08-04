@@ -12,6 +12,31 @@ const subject_list = ["Main Class Group", "English", "History/Geography",
 const section_list = ["Class Group"]
 
 
+function get_account_info(account_number) {
+    return new Promise( (resolve) => {
+        storage_location = `account_info_${account_number}`;
+        console.log(storage_location);
+        chrome.storage.local.get([storage_location], function (result) {
+            resolve(result);
+        });
+    });
+}
+// sleep for 3 seconds
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+sleep(3333).then( () => (
+get_account_info(1).then( (result) => {
+    e = result;
+    console.log(result);
+} )
+));
+
+
+// get subject_list and section_list from e
+
+
+
 // Run every 1 second
 setInterval(function(){
    renameSection();
