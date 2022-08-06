@@ -9,9 +9,10 @@ acc_number = acc_number.substring(3);
 acc_number = acc_number.substring(0, acc_number.indexOf("/"));
 console.log(`Signed in Google Account number is ${acc_number}`);
 
-console.log(acc_number.substring(3).substring(0, acc_number.indexOf("/")));
 
-function get_account_info(account_number) {
+
+
+function get_gcr_class_info(account_number) {
     return new Promise( (resolve) => {
         storage_location = `account_info_${account_number}`;
         console.log(storage_location);
@@ -29,39 +30,28 @@ function get_info() {
     });
 }
 
+
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function get_default_items(account_number) {
-    return new Promise((resolve) => {
-        let subject = GetElementsByExactClassName("z3vRcc-ZoZQ1").length;
-        let section = GetElementsByExactClassName("YVvGBb").length;
-        // GET Length of Subject and Section
 
-
-        main_list = {
-            "subject": subject,
-            "section": section
+/*
+function set_default_items(account_number) {
+    get_subject_length().then( (res) => {
+        console.log(res);
+        chrome.storage.local.set({[`subject_length_${account_number}`]: res}, function () {
+            console.log(`subject_length_${account_number} set to ${res}`);
         }
-        console.log(main_list)
+        );
 
-        __location = `class_info_${account_number}`;
-        chrome.storage.local.set({ [__location]: JSON.stringify(main_list) },
-            () => {
-                console.log('Value for ' + __location + ' set to ');
-                console.log(main_list);
-                resolve();
-            }
-        )
-    });
+    })
+
 }
+*/
 
-get_default_items(acc_number).then(
-    () => {
-        console.log("Default items set");
-    }
-);
+
 
 
 
@@ -87,7 +77,7 @@ sleep(1).then( () => (  // After sleeping...
     }
 
     }).then (    // After getting the user-info and checking if it's the default account...
-        get_account_info(acc_number).then( (result) => {    // Get Google Classroom subject and section info for the account signed into
+        get_gcr_class_info(acc_number).then( (result) => {    // Get Google Classroom subject and section info for the account signed into
             console.log(result);
 
             const subject_list = result["subject_names"]; // Get the list of subjects for the account signed into
@@ -98,9 +88,16 @@ sleep(1).then( () => (  // After sleeping...
             // check if subject list and section list are empty
             if (subject_list.length === 0 || section_list.length === 0) {   // If subject list or section list is empty
                 console.log("Subject or section list is empty");
+
+                chrome.storage.local.set({[`subject_length_${acc_number}`]: subject_list.length}, function () {
+                console.log(`subject_length_${acc_number} set to ${subject_list.length}`);
+                });
             }
 
             else {  // If subject list or section list is not empty
+                chrome.storage.local.set({[`subject_length_${acc_number}`]: subject_list.length}, function () {
+                console.log(`subject_length_${acc_number} set to ${subject_list.length}`);
+                });
                 setInterval(() => {   // Check every second
                     renameSection(section_list);
                     renameSubject(subject_list);
@@ -113,11 +110,6 @@ sleep(1).then( () => (  // After sleeping...
 ));
 
 
-// get subject_list and section_list from e
-
-
-
-// Run every 1 second
 
 
 // Renames the Subject Text-Box
@@ -144,8 +136,8 @@ function renameSection(section_list) {
 
 // Finds all elements with only given exact class name.
 function GetElementsByExactClassName(class_name) {
-    let i, length, element_list, data = [];
-    element_list = document.getElementsByClassName(class_name);
+    let i, length, data = [];
+    let element_list = document.getElementsByClassName(class_name);
     if (!element_list || !(length = element_list.length))
     return [];
     for (i = 0; i < length; i++) {if (element_list[i].className === class_name)data.push(element_list[i]);}
