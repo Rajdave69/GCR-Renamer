@@ -37,3 +37,9 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
     );
   }
 });
+
+
+
+chrome.action.onClicked.addListener(function() {
+  console.log("I was clicked");
+});
