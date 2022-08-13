@@ -48,17 +48,14 @@ sleep(1).then( () => (  // After sleeping...
             const section_list = result["section_names"]; // Get the list of sections for the account signed into
             console.log(subject_list, section_list);
 
-            if (document.getElementsByClassName("z3vRcc-ZoZQ1").length != subject_list.length) {    // If the amount of subjects in the account is different than the amount of subjects in the storage
-                chrome.storage.local.set({[`subject_length`]: document.getElementsByClassName("z3vRcc-ZoZQ1").length}, function () {
-                console.log(`subject_length set to ${document.getElementsByClassName("z3vRcc-ZoZQ1").length}`);
-                });
-            }
-
+            //const found_subjects = document.getElementsByClassName("z3vRcc-ZoZQ1"); // Get the list of subjects in the page
 
             // check if subject list and section list are empty
             if (subject_list.length === 0 || section_list.length === 0) {   // If subject list or section list is empty
                 console.log("Subject or section list is empty");
             }
+
+
 
             else {  // If subject list or section list is not empty
                 setInterval(() => {   // Check every second
@@ -70,7 +67,6 @@ sleep(1).then( () => (  // After sleeping...
         })
     )
 ));
-
 
 
 // Renames the Subject Text-Box

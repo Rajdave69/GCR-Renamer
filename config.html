@@ -2,32 +2,47 @@
 <html lang="en">
 <!-- load in JS file-->
 <head>
-<script src="js/index.js"></script>
-
-
-
+<!--    <link rel="stylesheet" type="text/css" href="./css/index.css">-->
+    <link rel="stylesheet" href="https://unpkg.com/papercss@1.8.3/dist/paper.min.css">
+    <script src="js/index.js"></script>
     <meta charset="UTF-8">
     <title>GCR Renamer</title>
-<!--    Set background color to grey and text color to white-->
-    <style>
-        body {
-            background-color: #f5f5f5;
-            color: #000;
-        }
-    </style>
 </head>
+
 <body>
+<div class="sm-12 md-8 col">
+    <div class="paper">
+        <div class="ptext-center">
+            <h1>GCR Renamer</h1>
+            <h4> Welcome to the GCR Renamer!</h4>
+            <br>
+        </div>
+
+    <!-- create input box-->
+        <p class="text-primary"> Please paste in the Google Classroom URL here, for your School account. It looks something like <b>https://classroom.google.com/u/1/h.</b> </p>
+        <label>
+            <input type="url" name="input" placeholder="Enter GCR URL">
+        </label>
+        
+        <p class="text-primary"> Please enter how many classes you've joined in your Google Classroom </p>
+        <label>
+            <input type="number" placeholder="Enter classes amount">
+        </label>
+        <br>
 
 
-<h1>GCR Renamer</h1>
-Welcome to the GCR Renamer!<br>
+        <button id="submit" class="button-52">Submit</button>
+        <br><br><br><br><br><br>
+
+        <div id="all-inputs">
+            <!-- Keep this empty, the JS will add input boxes here. -->
+        </div>
 
 
-
-
-
-<button id="myBtn" > Hello</button>
-<button onclick="myFunction()" id="rename">Rename</button>
+        <button id="myBtn" > Hello</button>
+        <button id="rename">Rename</button>
+    </div>
+</div>
 
 
 </body>
