@@ -23,8 +23,24 @@ const subjectsArea = document.getElementById('subjects-area');
 const sectionsArea = document.getElementById('sections-area');
 const BtnContainer = document.getElementById('lower');
 const expForURL = new RegExp("https://classroom\\.google\\.com/u/\\d+");
+let gcr_input_hidden = false;
 
 let renameButtonExists = false;
+
+
+// On page load, check if they have provided the user URL before, if yes hide that input
+get_info().then( (result) => {
+    let gcr_url_input = document.getElementById("gcr-url-input");
+
+    if (result == null) {
+        gcr_url_input.style.display = "block";
+    } else {
+        gcr_url_input.style.display = "none";
+        gcr_input_hidden = true;
+    }
+
+})
+
 
 submitBtn.addEventListener('click', () => {
     const URL = classroomURL.value.trim();
@@ -33,11 +49,15 @@ submitBtn.addEventListener('click', () => {
     let amountError1;
     let amountError2;
 
+
     if(!expForURL.test(URL)) { // If the URL is not valid
         URLError = true;
         classroomURL.style.border = "1px solid red";
     } else {    // If the URL is valid
         classroomURL.style.border = "1px solid white";
+        URLError = false;
+    }
+    if (gcr_input_hidden) {
         URLError = false;
     }
 
