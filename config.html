@@ -4,48 +4,63 @@
 <head>
 <!--    <link rel="stylesheet" type="text/css" href="./css/index.css">-->
     <link rel="stylesheet" href="https://unpkg.com/papercss@1.8.3/dist/paper.min.css">
-    <script src="js/index.js"></script>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GCR Renamer</title>
+    <style>
+        input {
+            transition: 0.3s;
+        }
+    </style>
 </head>
 
 <body style="background-color: #41403e">
-<div id="top" class="row site">
-<div class="sm-12 md-8 col">
-    <div class="paper">
-        <div class="ptext-center">
-            <h1>GCR Renamer</h1>
-            <h4> Welcome to the GCR Renamer!</h4>
-            <br>
+    <div id="top" class="row site">
+        <div class="sm-12 md-8 col">
+            <div class="paper">
+                <div class="ptext-center">
+                    <h1>GCR Renamer</h1>
+                    <h4>Welcome to the GCR Renamer!</h4>
+                    <br>
+                </div>
+        
+                <!-- create input box-->
+                <p class="text-primary"> Please paste in the Google Classroom URL here, for your School account. It looks something like <b>https://classroom.google.com/u/1/h.</b> </p>
+                <label>
+                    <input type="url" id="gcr-url" placeholder="Enter GCR URL" required>
+                </label>
+
+                <p class="text-primary"> Please enter how many classes you've joined in your Google Classroom </p>
+                <label>
+                    <input type="number" id="classes-amount" placeholder="Enter classes amount" required>
+                </label>
+                <br>
+                
+                
+                <button id="submit" class="button-52">Submit</button>
+                <br><br><br><br><br><br>
+
+                
+                <div>
+                    <div id="upper" class="row flex-edges">
+                        <!-- Keep this empty, the JS will add input boxes here. -->
+                        <div id="subjects-area" class="sm-5 md-4 col">
+                            
+                        </div>
+                        <div id="sections-area" class="sm-5 md-4 col" style="text-align: right;">
+                            
+                        </div>
+                    </div>
+                    <div id="lower" style="text-align: center;">
+                    </div>
+                </div>
+                
+                
+            </div>
         </div>
-
-    <!-- create input box-->
-        <p class="text-primary"> Please paste in the Google Classroom URL here, for your School account. It looks something like <b>https://classroom.google.com/u/1/h.</b> </p>
-        <label>
-            <input type="url" name="input" placeholder="Enter GCR URL">
-        </label>
-
-        <p class="text-primary"> Please enter how many classes you've joined in your Google Classroom </p>
-        <label>
-            <input type="number" placeholder="Enter classes amount">
-        </label>
-        <br>
-
-
-        <button id="submit" class="button-52">Submit</button>
-        <br><br><br><br><br><br>
-
-        <div id="all-inputs">
-            <!-- Keep this empty, the JS will add input boxes here. -->
-        </div>
-
-
-        <button id="myBtn" > Hello</button>
-        <button id="rename">Rename</button>
     </div>
-</div>
-</div>
 
+    <script src="js/index.js"></script>
 </body>
 
 </html>
