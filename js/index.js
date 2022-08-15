@@ -15,40 +15,57 @@ Storage Structure
 const acc_number = 1;
 const subject_list = ["Main Class Group", "English", "History/Geography", "Economics/Civics", "Hindi", "Biology", "Physics", "Chemistry", "Math", "AI", "Mental Ability", "Art"];
 const section_list = ["Class Group"];
-const classes_number = 0;
+
 const submitBtn = document.getElementById('submit');
 const classroomURL = document.getElementById('gcr-url');
 const classesAmount = document.getElementById('classes-amount');
 const subjectsArea = document.getElementById('subjects-area');
 const sectionsArea = document.getElementById('sections-area');
 const BtnContainer = document.getElementById('lower');
-const expForURL = new RegExp(/classroom.google.com/);
+const expForURL = new RegExp("https://classroom\\.google\\.com/u/\\d+");
 
+let renameButtonExists = false;
 
-submitBtn.addEventListener('click', (e) => {
+submitBtn.addEventListener('click', () => {
     const URL = classroomURL.value.trim();
     const amount = classesAmount.value.trim();
-    let URLError = "";
-    let amountError = "";
+    let URLError;
+    let amountError1;
+    let amountError2;
 
-    if(!expForURL.test(URL)) {
+    if(!expForURL.test(URL)) { // If the URL is not valid
         URLError = true;
         classroomURL.style.border = "1px solid red";
-    } else {
+    } else {    // If the URL is valid
         classroomURL.style.border = "1px solid white";
+        URLError = false;
     }
 
-    if(typeof parseInt(amount) != 'number' || amount == '') {
-        amountError = true;
+    if (isNaN(parseInt(amount))){  // If amount is not NaN and is not empty
+        amountError1 = true;
         classesAmount.style.border = "1px solid red";
     } else {
+        amountError1 = false;
         classesAmount.style.border = "1px solid white";
     }
 
-    if(URLError == "" && amountError == "") {
+    if (parseInt(amount) < 0 || parseInt(amount) > 100) { // If amount between 1 and 100
+        amountError2 = true;
+        classesAmount.style.border = "1px solid red";
+    } else {                // If amount is not a number
+        amountError2 = false;
+        classesAmount.style.border = "1px solid white";
+    }
+
+    console.log(amountError1, amountError2, URLError);
+
+    // false = valid, true = invalid
+    if (!URLError && !amountError1 && !amountError2) {    // If both inputs are valid
         subjectsArea.innerHTML = "";
         sectionsArea.innerHTML = "";
         create_boxes(amount, subjectsArea, sectionsArea);
+        create_rename_button();
+
     }
 });
 
@@ -60,7 +77,6 @@ function init() { // This function should be run after the 4 variables are set
         "section_names": section_list
     }).then( () => {
         set_info({"default_account": acc_number}).then( () => {
-        // create_boxes(parseInt(classes_number), subjectsArea, sectionsArea);
     })
 })
 }
@@ -74,6 +90,15 @@ function set_info(account_info) {
     })
 }
 
+
+function get_info() {
+    return new Promise(function (resolve) {
+        chrome.storage.local.get(['info'], function (result) {
+            resolve(result.info);
+        });
+    });
+}
+
 function set_gcr_class_list(info) {
     return new Promise(function (resolve) {
         chrome.storage.local.set({"class_list": JSON.stringify(info)}, () => {
@@ -84,6 +109,15 @@ function set_gcr_class_list(info) {
         )
     });
 }
+
+function get_gcr_class_list() {
+    return new Promise(function (resolve) {
+        chrome.storage.local.get(["class_list"], (result) => {
+            resolve(result);
+        })
+    })
+}
+
 
 function create_boxes(number, subjectsArea, sectionsArea) {
     let _subject_boxes = [];
@@ -118,6 +152,13 @@ function create_boxes(number, subjectsArea, sectionsArea) {
         sectionsArea.appendChild(boxForSection);
     }
 
+
+}
+
+function create_rename_button() {
+    if (renameButtonExists) {
+        return;
+    }
     const renameButton = document.createElement('button');
 
     renameButton.setAttribute('type', 'button');
@@ -125,9 +166,10 @@ function create_boxes(number, subjectsArea, sectionsArea) {
     renameButton.textContent = "Rename";
 
     BtnContainer.appendChild(renameButton);
+    renameButtonExists = true;
+
+
 }
-
-
 
 /* Temporary code to mimic input gathering
 set_gcr_class_list({
