@@ -21,42 +21,30 @@ const subjectsArea = document.getElementById('subjects-area');
 const sectionsArea = document.getElementById('sections-area');
 const renameBtn = document.getElementById('rename-btn');
 // const BtnContainer = document.getElementById('lower');
-const expForURL = new RegExp("https://classroom\\.google\\.com/u/\\d+");
+const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+");
 let gcr_input_hidden = false;
+let _user_id;
+create_lists();
 
-get_gcr_class_list().then( (result) => {
-    console.log(result);
-    for (let i = 0; i < result['subject_names'].length; i++) {
-        subject_list.push(result['subject_names'][i]);
-        section_list.push(result['section_names'][i]);
-        console.log(subject_list, section_list);
-    }
-    if (result['subject_names'].length > 0) {
-        create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
-        toggle_rename_button("on");
-    }
 
-});
 
-let user_id;
 // let renameButtonExists = false;
 
 
-toggle_url_input();
-function toggle_url_input() {
-// Hide URL input if user has entered it before
-    get_info().then( (result) => {
-        let gcr_url_input = document.getElementById("gcr-url-input");
-        if (result == null) {
-            gcr_url_input.style.display = "block";
-            gcr_input_hidden = false;
-            console.info("No URL found in storage");
-        } else {
-            gcr_url_input.style.display = "none";
-            gcr_input_hidden = true;
-            console.info("URL was entered before. Hiding input field.");
-        }
-    })
+function toggle_url_input(state = "on") {
+    let gcr_url_input = document.getElementById("gcr-url-input");
+
+    if (state === "on") {
+        gcr_url_input.style.display = "block";
+        console.info("No URL found in storage");
+
+        gcr_input_hidden = false;
+    } else {
+        gcr_url_input.style.display = "none";
+        console.info("URL was entered before. Hiding input field.");
+
+        gcr_input_hidden = true;
+    }
 }
 
 /*
@@ -82,8 +70,13 @@ submitBtn.addEventListener('click', () => { // Event listener for the submit but
         classroomURL.style.border = "1px solid white";
         URLError = false;
     }
-    if (gcr_input_hidden) {
-        URLError = false;
+    if (_user_id < 0) {
+        // unhide the input field
+        toggle_url_input("on");
+    } else {
+        if (gcr_input_hidden) {
+            URLError = false;
+        }
     }
 
     if (isNaN(parseInt(amount))){  // If amount is not NaN and is not empty
@@ -106,24 +99,43 @@ submitBtn.addEventListener('click', () => { // Event listener for the submit but
 
     // false = valid, true = invalid
     if (!URLError && !amountError1 && !amountError2) {    // If both inputs are valid
-        // Get user id from URL
-        URL = URL.replace("https://classroom.google.com/u/", "").split("/");
+        get_info().then( (result) => {
+            if (URL != "") {   // If URL is not empty
+                URL = URL.split("/");
+                console.debug(URL);
 
-        if (!isNaN(URL[0])) {
-            user_id = URL[0];
-        } else {
-            user_id = URL[1];
-        }
+                for (let i = 0; i < URL.length; i++) {
+                    if (!isNaN(URL[i]) && URL[i] !== "") {
+                        user_id = URL[i];
+                        break;
+                    }
+                }
+                console.info("User ID: " + user_id);
+                set_info({"default_account": user_id});
+                toggle_url_input("off");
 
-        console.info("User ID: " + user_id);
-        set_info({"default_account": user_id}).then( () => {
-            console.info("Default account set to " + user_id);
-            subjectsArea.innerHTML = "";
-            sectionsArea.innerHTML = "";
-            create_boxes(amount, subjectsArea, sectionsArea);
-            toggle_rename_button("on");
-            toggle_url_input();
-        })
+                if (isNaN(parseInt(result))) {  // If result is not a number
+                    set_info({"default_account": user_id});
+
+                } else { // If result is a number
+
+                    if (parseInt(result) === parseInt(user_id)) { // If result is equal to user_id
+                        console.info("User ID is the same as the one in storage");
+                    } else {                // If result is not equal to user_id
+                        set_info({"default_account": user_id}).then( () => {
+                            console.info("User ID has been updated");
+                        });
+
+                    }
+                }
+            }
+
+            create_lists(true).then( () => {
+                create_boxes(amount, subjectsArea, sectionsArea);
+                toggle_rename_button("on");
+            })
+
+        });
     }
 });
 
@@ -167,8 +179,8 @@ function get_info() {
     return new Promise(function (resolve) {
         chrome.storage.local.get(['info'], function (result) {
             if (isNaN(result.info['default_account']) || result.info['default_account'] === "") {
-                resolve(null);
-                console.debug(`get_info: [null] ${JSON.stringify(result.info)}`);
+                resolve(undefined);
+                console.debug(`get_info: [undefined] ${JSON.stringify(result.info)}`);
             } else {
                 resolve(result.info);
                 console.debug(`get_info: ${JSON.stringify(result.info)}`);
@@ -234,6 +246,67 @@ function create_boxes(number, subjectsArea, sectionsArea) {
 
 }
 
+function create_lists(ignore_userid = false) {
+    return new Promise( (resolve) => {
+        if (ignore_userid) {
+           toggle_url_input("off");
+           console.debug("user id is over -1");
+
+           get_gcr_class_list().then((result) => {
+               console.log(result);
+
+               for (let i = 0; i < result['subject_names'].length; i++) {
+                   subject_list.push(result['subject_names'][i]);
+                   section_list.push(result['section_names'][i]);
+               }
+
+               if (result['subject_names'].length > 0) {
+                   create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
+                   toggle_rename_button("on");
+
+                   let class_number_input = document.getElementById('classes-amount');
+                   class_number_input.setAttribute("value", result['subject_names'].length);
+               }
+
+           });
+            return;
+        }
+
+        get_info().then((info) => {
+            _user_id = info["default_account"];
+            console.log(_user_id);
+
+            if (parseInt(_user_id) > -1) { // If the user has a default account
+                toggle_url_input("off");
+                console.debug("user id is over -1");
+
+                get_gcr_class_list().then((result) => {
+                    console.log(result);
+
+                    for (let i = 0; i < result['subject_names'].length; i++) {
+                        subject_list.push(result['subject_names'][i]);
+                        section_list.push(result['section_names'][i]);
+                    }
+
+                    if (result['subject_names'].length > 0 && !isNaN(_user_id)) {
+                        create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
+                        toggle_rename_button("on");
+
+
+                        let class_number_input = document.getElementById('classes-amount');
+                        class_number_input.setAttribute("value", result['subject_names'].length);
+                    }
+                    console.debug(_user_id)
+
+                });
+
+            } else {                    // If the user does not have a default account
+
+            }
+            resolve();
+        });
+    });
+}
 
 function toggle_rename_button(state) {
     // hide and show rename button
