@@ -14,5 +14,6 @@
       "js": ["./js/rename.js"]
     }
   ],
-  "action": {}
+  "action": {},
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgQLIBi1irLYO6G+/xANGMsJp71JUzgNsz9RjfsycMGC5W1wGCI8GjbTk3qOduT8gcnqavKHTo1Wvq8PTwqiDTDhgESLSqrM7MctMSQhw/rJHBKWqbElUUA2YBrATiYxR/DDL3YaLhsnhJLq1nKG51rvK7+vIbZrr50UqcBGOLlS1HGgCExGdwRjAtnrXdkV6z66HWF4szbEHwE+1xCCZ5jx9Nu277TVCnCrh9S9q6B8VV0J4rpS/LeOIQ90fOp9iQBwEVhkDDQl4ZLYfMmKobHvzgYQqz1gk5N7QJEAs7UJtxeCFo7xt/EsHs5n29Mwl1aGq3eNwFfVcprdxQiVcqQIDAQAB"
 }
