@@ -12,19 +12,8 @@ Storage Structure
 
 // TODO : Make force dark mode for gcr
 
-const acc_number = 1;
 let subject_list = [];
 let section_list = [];
-res = get_gcr_class_list().then( (result) => {
-    console.log(result);
-    for (let i = 0; i < result['subject_names'].length; i++) {
-        subject_list.push(result['subject_names'][i]);
-        section_list.push(result['section_names'][i]);
-        console.log(subject_list, section_list);
-    }
-});
-
-
 const submitBtn = document.getElementById('submit');
 const classroomURL = document.getElementById('gcr-url');
 const classesAmount = document.getElementById('classes-amount');
@@ -34,6 +23,21 @@ const renameBtn = document.getElementById('rename-btn');
 // const BtnContainer = document.getElementById('lower');
 const expForURL = new RegExp("https://classroom\\.google\\.com/u/\\d+");
 let gcr_input_hidden = false;
+
+get_gcr_class_list().then( (result) => {
+    console.log(result);
+    for (let i = 0; i < result['subject_names'].length; i++) {
+        subject_list.push(result['subject_names'][i]);
+        section_list.push(result['section_names'][i]);
+        console.log(subject_list, section_list);
+    }
+    if (result['subject_names'].length > 0) {
+        create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
+        toggle_rename_button("on");
+    }
+
+});
+
 let user_id;
 // let renameButtonExists = false;
 
@@ -112,8 +116,8 @@ submitBtn.addEventListener('click', () => { // Event listener for the submit but
         }
 
         console.info("User ID: " + user_id);
-        set_info({"default_account": acc_number}).then( () => {
-            console.info("Default account set to " + acc_number);
+        set_info({"default_account": user_id}).then( () => {
+            console.info("Default account set to " + user_id);
             subjectsArea.innerHTML = "";
             sectionsArea.innerHTML = "";
             create_boxes(amount, subjectsArea, sectionsArea);
@@ -162,7 +166,7 @@ function set_info(account_info) {
 function get_info() {
     return new Promise(function (resolve) {
         chrome.storage.local.get(['info'], function (result) {
-            if (isNaN(result.info['default_account'])) {
+            if (isNaN(result.info['default_account']) || result.info['default_account'] === "") {
                 resolve(null);
                 console.debug(`get_info: [null] ${JSON.stringify(result.info)}`);
             } else {
