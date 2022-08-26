@@ -24,7 +24,19 @@ const renameBtn = document.getElementById('rename-btn');
 const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+");
 let gcr_input_hidden = false;
 let _user_id;
-create_lists();
+create_lists().then( () =>  {
+    get_gcr_class_list().then ( (result) => {
+    if (result['subject_names'].length > 0) {
+        create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
+        toggle_rename_button("on");
+
+        let class_number_input = document.getElementById('classes-amount');
+        class_number_input.setAttribute("value", result['subject_names'].length);
+
+    }
+    });
+
+})
 
 
 
@@ -131,7 +143,8 @@ submitBtn.addEventListener('click', () => { // Event listener for the submit but
             }
 
             create_lists(true).then( () => {
-                create_boxes(amount, subjectsArea, sectionsArea);
+                console.debug("created lists")
+                create_boxes(parseInt(amount), subjectsArea, sectionsArea);
                 toggle_rename_button("on");
             })
 
@@ -213,6 +226,9 @@ function get_gcr_class_list() {
 function create_boxes(number, subjectsArea, sectionsArea) {
     let _subject_boxes = [], _section_boxes = [];
 
+        subjectsArea.innerText = "";
+    sectionsArea.innerText = "";
+
     const subjectHeading = document.createElement('h4');
     const sectionHeading = document.createElement('h4');
 
@@ -250,7 +266,7 @@ function create_lists(ignore_userid = false) {
     return new Promise( (resolve) => {
         if (ignore_userid) {
            toggle_url_input("off");
-           console.debug("user id is over -1");
+           console.debug("ignoring user id");
 
            get_gcr_class_list().then((result) => {
                console.log(result);
@@ -260,16 +276,8 @@ function create_lists(ignore_userid = false) {
                    section_list.push(result['section_names'][i]);
                }
 
-               if (result['subject_names'].length > 0) {
-                   create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
-                   toggle_rename_button("on");
-
-                   let class_number_input = document.getElementById('classes-amount');
-                   class_number_input.setAttribute("value", result['subject_names'].length);
-               }
-
            });
-            return;
+            return resolve();
         }
 
         get_info().then((info) => {
@@ -288,14 +296,6 @@ function create_lists(ignore_userid = false) {
                         section_list.push(result['section_names'][i]);
                     }
 
-                    if (result['subject_names'].length > 0 && !isNaN(_user_id)) {
-                        create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
-                        toggle_rename_button("on");
-
-
-                        let class_number_input = document.getElementById('classes-amount');
-                        class_number_input.setAttribute("value", result['subject_names'].length);
-                    }
                     console.debug(_user_id)
 
                 });
@@ -316,4 +316,3 @@ function toggle_rename_button(state) {
         renameBtn.style.display = "none";
     }
 }
-
