@@ -32,7 +32,9 @@ sleep(1).then( () => (  // After sleeping...
         if (acc_number == result['default_account']) {  // If default account is the account signed into
             console.log("Already on default account: Current Account number is same as default_account number");
         }
-
+        else if (result['default_account'] < 0) {
+            console.log("default account is set to be under 0. Skipping redirect")
+        }
         else {  // If default account is not the account signed into
             console.log("Not on default account: Current Account number is different from default_account number");
             location = `https://classroom.google.com/u/${result['default_account']}/h`; // TODO: make it redirect to actual path

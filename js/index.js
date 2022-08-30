@@ -9,175 +9,200 @@ Storage Structure
  └─► subject_length int ─► Stores simply the number of classes the user is in, which will be used to create the respective amount of input boxes in the front end
 
 */
-
-// TODO : Make force dark mode for gcr
-
 let subject_list = [];
 let section_list = [];
-const submitBtn = document.getElementById('submit');
-const classroomURL = document.getElementById('gcr-url');
-const classesAmount = document.getElementById('classes-amount');
-const subjectsArea = document.getElementById('subjects-area');
-const sectionsArea = document.getElementById('sections-area');
 const renameBtn = document.getElementById('rename-btn');
-// const BtnContainer = document.getElementById('lower');
-const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+");
-let gcr_input_hidden = false;
-let _user_id;
-create_lists().then( () =>  {
-    get_gcr_class_list().then ( (result) => {
-    if (result['subject_names'].length > 0) {
-        create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
-        toggle_rename_button("on");
-
-        let class_number_input = document.getElementById('classes-amount');
-        class_number_input.setAttribute("value", result['subject_names'].length);
-
-    }
-    });
-
-})
 
 
+// TODO : Make force dark mode for gcr
+console.log("JS Loaded");
+console.log(location.pathname)
+// index.html JS
+if (location.pathname === "/config.html") {
 
-// let renameButtonExists = false;
+    const submitBtn = document.getElementById('submit');
+    const classroomURL = document.getElementById('gcr-url');
+    const classesAmount = document.getElementById('classes-amount');
+    const subjectsArea = document.getElementById('subjects-area');
+    const sectionsArea = document.getElementById('sections-area');
+    // const BtnContainer = document.getElementById('lower');
+    const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+");
+    let gcr_input_hidden = false;
+    let _user_id;
+    create_lists().then(() => {
+        get_gcr_class_list().then((result) => {
+            if (result['subject_names'].length > 0) {
+                create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
+                toggle_rename_button("on");
+
+                let class_number_input = document.getElementById('classes-amount');
+                class_number_input.setAttribute("value", result['subject_names'].length);
+
+            }
+        });
+
+    })
 
 
-function toggle_url_input(state = "on") {
-    let gcr_url_input = document.getElementById("gcr-url-input");
+    /*
+        >> Event Listeners
 
-    if (state === "on") {
-        gcr_url_input.style.display = "block";
-        console.info("No URL found in storage");
-
-        gcr_input_hidden = false;
-    } else {
-        gcr_url_input.style.display = "none";
-        console.info("URL was entered before. Hiding input field.");
-
-        gcr_input_hidden = true;
-    }
-}
-
-/*
-    >> Event Listeners
-
-       This part of the code is responsible for listening to events and performing actions accordingly.
-       It contains only event listeners.
-*/
+           This part of the code is responsible for listening to events and performing actions accordingly.
+           It contains only event listeners.
+    */
 
 
-submitBtn.addEventListener('click', () => { // Event listener for the submit button
+    submitBtn.addEventListener('click', () => { // Event listener for the submit button
 
-    let URL = classroomURL.value.trim();
-    const amount = classesAmount.value.trim();
-    let URLError;
-    let amountError1;
-    let amountError2;
+        let URL = classroomURL.value.trim();
+        const amount = classesAmount.value.trim();
+        let URLError;
+        let amountError1;
+        let amountError2;
 
-    if(!expForURL.test(URL)) { // If the URL is not valid
-        URLError = true;
-        classroomURL.style.border = "1px solid red";
-    } else {    // If the URL is valid
-        classroomURL.style.border = "1px solid white";
-        URLError = false;
-    }
-    if (_user_id < 0) {
-        // unhide the input field
-        toggle_url_input("on");
-    } else {
-        if (gcr_input_hidden) {
+        if (!expForURL.test(URL)) { // If the URL is not valid
+            URLError = true;
+            classroomURL.style.border = "1px solid red";
+        } else {    // If the URL is valid
+            classroomURL.style.border = "1px solid white";
             URLError = false;
         }
-    }
-
-    if (isNaN(parseInt(amount))){  // If amount is not NaN and is not empty
-        amountError1 = true;
-        classesAmount.style.border = "1px solid red";
-    } else {
-        amountError1 = false;
-        classesAmount.style.border = "1px solid white";
-    }
-
-    if (parseInt(amount) < 1 || parseInt(amount) > 100) { // If amount between 1 and 100
-        amountError2 = true;
-        classesAmount.style.border = "1px solid red";
-    } else {                // If amount is not a number
-        amountError2 = false;
-        classesAmount.style.border = "1px solid white";
-    }
-
-    console.debug(amountError1, amountError2, URLError);
-
-    // false = valid, true = invalid
-    if (!URLError && !amountError1 && !amountError2) {    // If both inputs are valid
-        get_info().then( (result) => {
-            if (URL != "") {   // If URL is not empty
-                URL = URL.split("/");
-                console.debug(URL);
-
-                for (let i = 0; i < URL.length; i++) {
-                    if (!isNaN(URL[i]) && URL[i] !== "") {
-                        user_id = URL[i];
-                        break;
-                    }
-                }
-                console.info("User ID: " + user_id);
-                set_info({"default_account": user_id});
-                toggle_url_input("off");
-
-                if (isNaN(parseInt(result))) {  // If result is not a number
-                    set_info({"default_account": user_id});
-
-                } else { // If result is a number
-
-                    if (parseInt(result) === parseInt(user_id)) { // If result is equal to user_id
-                        console.info("User ID is the same as the one in storage");
-                    } else {                // If result is not equal to user_id
-                        set_info({"default_account": user_id}).then( () => {
-                            console.info("User ID has been updated");
-                        });
-
-                    }
-                }
+        if (_user_id < 0) {
+            // unhide the input field
+            toggle_url_input("on");
+        } else {
+            if (gcr_input_hidden) {
+                URLError = false;
             }
+        }
 
-            create_lists(true).then( () => {
-                console.debug("created lists")
-                create_boxes(parseInt(amount), subjectsArea, sectionsArea);
-                toggle_rename_button("on");
-            })
+        if (isNaN(parseInt(amount))) {  // If amount is not NaN and is not empty
+            amountError1 = true;
+            classesAmount.style.border = "1px solid red";
+        } else {
+            amountError1 = false;
+            classesAmount.style.border = "1px solid white";
+        }
 
-        });
-    }
-});
+        if (parseInt(amount) < 1 || parseInt(amount) > 100) { // If amount between 1 and 100
+            amountError2 = true;
+            classesAmount.style.border = "1px solid red";
+        } else {                // If amount is not a number
+            amountError2 = false;
+            classesAmount.style.border = "1px solid white";
+        }
 
+        console.debug(amountError1, amountError2, URLError);
 
-renameBtn.addEventListener('click', () => { // Event listener for the rename button
+        // false = valid, true = invalid
+        if (!URLError && !amountError1 && !amountError2) {    // If both inputs are valid
+            get_info().then((result) => {
+                if (URL != "") {   // If URL is not empty
+                    URL = URL.split("/");
+                    console.debug(URL);
 
-    let subject_names = [];
-    let section_names = [];
-    let subject_inputs = document.getElementsByClassName("subject-box");
-    let section_inputs = document.getElementsByClassName("section-box");
-    for (let i = 0; i < subject_inputs.length; i++) {
-        subject_names.push(subject_inputs[i].value);
-    }
-    for (let i = 0; i < section_inputs.length; i++) {
-        section_names.push(section_inputs[i].value);
-    }
-    console.info("Subjects: " + JSON.stringify(subject_names));
-    console.info("Sections: " + JSON.stringify(section_names));
-    set_gcr_class_list({
-        "subject_names": subject_names,
-        "section_names": section_names
-    }).then( () => {
-        console.info("Class list set");
+                    for (let i = 0; i < URL.length; i++) {
+                        if (!isNaN(URL[i]) && URL[i] !== "") {
+                            user_id = URL[i];
+                            break;
+                        }
+                    }
+                    console.info("User ID: " + user_id);
+                    set_info({"default_account": user_id});
+                    toggle_url_input("off");
+
+                    if (isNaN(parseInt(result))) {  // If result is not a number
+                        set_info({"default_account": user_id});
+
+                    } else { // If result is a number
+
+                        if (parseInt(result) === parseInt(user_id)) { // If result is equal to user_id
+                            console.info("User ID is the same as the one in storage");
+                        } else {                // If result is not equal to user_id
+                            set_info({"default_account": user_id}).then(() => {
+                                console.info("User ID has been updated");
+                            });
+
+                        }
+                    }
+                }
+
+                create_lists(true).then(() => {
+                    console.debug("created lists")
+                    create_boxes(parseInt(amount), subjectsArea, sectionsArea);
+                    toggle_rename_button("on");
+                })
+
+            });
+        }
     });
 
-});
+
+    renameBtn.addEventListener('click', () => { // Event listener for the rename button
+
+        let subject_names = [];
+        let section_names = [];
+        let subject_inputs = document.getElementsByClassName("subject-box");
+        let section_inputs = document.getElementsByClassName("section-box");
+        for (let i = 0; i < subject_inputs.length; i++) {
+            subject_names.push(subject_inputs[i].value);
+        }
+        for (let i = 0; i < section_inputs.length; i++) {
+            section_names.push(section_inputs[i].value);
+        }
+        console.info("Subjects: " + JSON.stringify(subject_names));
+        console.info("Sections: " + JSON.stringify(section_names));
+        set_gcr_class_list({
+            "subject_names": subject_names,
+            "section_names": section_names
+        }).then(() => {
+            console.info("Class list set");
+        });
+
+    });
+
+
+}
+
+else if (location.pathname === "/settings.html") {
+    console.debug("settings.html");
+    export_btn = document.getElementById('export-btn');
+    import_btn = document.getElementById('import-btn');
+    file_input = document.getElementById('file-input');
 
 
 
+
+
+    export_btn.addEventListener('click', () => {
+        export_to_json();
+    } );
+
+    import_btn.addEventListener('click', () => {
+        file_input.style.display = "block";
+        import_from_json().then( () => {
+            file_input.style.display = "none";
+        } );
+
+
+    } );
+
+
+}
+
+
+
+
+
+
+
+
+/*
+    >> Functions
+        This part of the code contains all the functions that are used in the code.
+        It contains all the functions that are used in the code.
+
+ */
 
 function set_info(account_info) {
     return new Promise(function (resolve) {
@@ -308,6 +333,23 @@ function create_lists(ignore_userid = false) {
     });
 }
 
+function toggle_url_input(state = "on") {
+    let gcr_url_input = document.getElementById("gcr-url-input");
+
+    if (state === "on") {
+        gcr_url_input.style.display = "block";
+        console.info("No URL found in storage");
+
+        gcr_input_hidden = false;
+    } else {
+        gcr_url_input.style.display = "none";
+        console.info("URL was entered before. Hiding input field.");
+
+        gcr_input_hidden = true;
+    }
+}
+
+
 function toggle_rename_button(state) {
     // hide and show rename button
     if (state === "on") {
@@ -315,4 +357,45 @@ function toggle_rename_button(state) {
     } else {
         renameBtn.style.display = "none";
     }
+}
+
+
+function export_to_json() {
+    return new Promise( (resolve) => {
+        get_gcr_class_list().then((result) => {
+            console.log(result);
+            let json = JSON.stringify(result);
+            let blob = new Blob([json], {type: "application/json"});
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement("a");
+            a.href = url;
+            a.download = "gcr_class_list.json";
+            document.body.appendChild(a);
+            a.click();
+            resolve();
+        }).catch((error) => {
+            console.error(error);
+            resolve();
+        } );
+    } );
+}
+
+function import_from_json() {
+    return new Promise( (resolve) => {
+
+        let fileInput = document.getElementById('file-input');
+        fileInput.addEventListener('change', function (e) {
+            let file = fileInput.files[0];
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                let data = JSON.parse(reader.result);
+                console.log(data);
+                set_gcr_class_list(data).then(() => {
+                    console.log("done");
+                    resolve();
+                } );
+            };
+            reader.readAsText(file);
+        });
+    } );
 }
