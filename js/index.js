@@ -442,6 +442,11 @@ function import_from_json() {
         fileInput.addEventListener('change', function (e) {
             let file = fileInput.files[0];
             let reader = new FileReader();
+            // check if file is a json file
+            if (file.name.split('.').pop() !== 'json') {
+                alert("Please select a JSON file");
+                return;
+            }
             reader.onload = function (e) {
                 let data = JSON.parse(reader.result);
                 console.log(data);
