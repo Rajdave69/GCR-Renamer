@@ -5,6 +5,11 @@ chrome.runtime.onInstalled.addListener(async () => {
     let tab = await chrome.tabs.create({url});
     console.log(`Created tab ${tab.id}`);
 
+/*
+     >> First time install functions
+
+     This below code sets default values to the storage (if empty), on install.
+*/
 
     chrome.storage.local.get(['info']).then( (result) => {
         try {
@@ -23,6 +28,15 @@ chrome.runtime.onInstalled.addListener(async () => {
             chrome.storage.local.set({'class_list': JSON.stringify({"subject_names": [], "section_names": []})});
         }
     });
+
+    chrome.storage.local.get(['ignore-rules']).then( (result) => {
+        if (result['ignore-rules'] === undefined) {
+            chrome.storage.local.set({'ignore-rules': false});
+        }
+    }).catch( (e) => {
+        console.log(e);
+    } );
+
 
 
 chrome.storage.onChanged.addListener(function (changes, namespace) {

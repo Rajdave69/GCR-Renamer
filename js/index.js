@@ -25,6 +25,7 @@ if (location.pathname === "/config.html") {
     const classesAmount = document.getElementById('classes-amount');
     const subjectsArea = document.getElementById('subjects-area');
     const sectionsArea = document.getElementById('sections-area');
+    const settings_page = document.getElementById('settings-page');
     // const BtnContainer = document.getElementById('lower');
     const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+");
     let gcr_input_hidden = false;
@@ -51,6 +52,9 @@ if (location.pathname === "/config.html") {
            It contains only event listeners.
     */
 
+    settings_page.addEventListener('click', () => {
+        window.location.href = "settings.html";
+    })
 
     submitBtn.addEventListener('click', () => { // Event listener for the submit button
 
@@ -166,32 +170,55 @@ if (location.pathname === "/config.html") {
 
 else if (location.pathname === "/settings.html") {
     console.debug("settings.html");
-    export_btn = document.getElementById('export-btn');
-    import_btn = document.getElementById('import-btn');
-    file_input = document.getElementById('file-input');
+    const export_btn = document.getElementById('export-btn');
+    const import_btn = document.getElementById('import-btn');
+    const file_input = document.getElementById('file-input');
+    const ignore_section_toggle = document.getElementById('ignore-sections');
+    const back_button = document.getElementById('main-page');
+
+    get_ignore_rules().then( (res) => {
+        ignore_section_toggle.checked = !!res;
+    })
+
+    back_button.addEventListener('click', () => {
+        window.location.href = "config.html";
+    } );
 
 
-
+    // add event listener to ignore_section_toggle to detect toggle state
+    ignore_section_toggle.addEventListener('change', () => {
+        console.debug("ignore_section_toggle changed");
+        if (ignore_section_toggle.checked) {
+            set_ignore_rules(true).then(() => {
+                console.info("Ignore sections set to true");
+            });
+        } else {
+            set_ignore_rules(false).then(() => {
+                console.info("Ignore sections set to false");
+            });
+        }
+    });
 
 
     export_btn.addEventListener('click', () => {
-        export_to_json();
+        export_to_json().then( () => {
+            let tick_box = document.getElementById('export_complete');
+            tick_box.checked = true;
+        });
     } );
+
 
     import_btn.addEventListener('click', () => {
         file_input.style.display = "block";
         import_from_json().then( () => {
             file_input.style.display = "none";
+
+            let tick_box = document.getElementById('import_complete');
+            tick_box.checked = true;
+
         } );
-
-
     } );
-
-
 }
-
-
-
 
 
 
@@ -203,6 +230,23 @@ else if (location.pathname === "/settings.html") {
         It contains all the functions that are used in the code.
 
  */
+
+function set_ignore_rules(info) {
+    return new Promise((resolve) => {
+        chrome.storage.local.set({'ignore-rules': info}, () => {
+            resolve();
+        } );
+    } );
+}
+
+function get_ignore_rules() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get('ignore-rules', (result) => {
+            resolve(result['ignore-rules']);
+        } );
+    } );
+}
+
 
 function set_info(account_info) {
     return new Promise(function (resolve) {
@@ -364,15 +408,26 @@ function export_to_json() {
     return new Promise( (resolve) => {
         get_gcr_class_list().then((result) => {
             console.log(result);
-            let json = JSON.stringify(result);
-            let blob = new Blob([json], {type: "application/json"});
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement("a");
-            a.href = url;
-            a.download = "gcr_class_list.json";
-            document.body.appendChild(a);
-            a.click();
-            resolve();
+            let temp_json = result;
+            get_info().then((info) => {
+                temp_json['default_account'] = info['default_account'];
+                console.log(temp_json);
+                get_ignore_rules().then((ignore_rules) => {
+                    temp_json['ignore_rules'] = ignore_rules;
+                    console.log(temp_json);
+
+                    let json = JSON.stringify(temp_json);
+                    let blob = new Blob([json], {type: "application/json"});
+                    let url = URL.createObjectURL(blob);
+                    let a = document.createElement("a");
+                    a.href = url;
+                    a.download = "gcr_class_list.json";
+                    document.body.appendChild(a);
+                    a.click();
+                    resolve();
+                } );
+            } );
+
         }).catch((error) => {
             console.error(error);
             resolve();
@@ -390,9 +445,16 @@ function import_from_json() {
             reader.onload = function (e) {
                 let data = JSON.parse(reader.result);
                 console.log(data);
-                set_gcr_class_list(data).then(() => {
-                    console.log("done");
-                    resolve();
+                console.log(data['subject_names' + 'section_names'])
+                set_gcr_class_list(data['subject_names' + 'section_names']).then(() => {
+                    console.log("done setting class list");
+                    set_ignore_rules(data['ignore_rules']).then(() => {
+                        console.log("done setting ignore rules");
+                        set_info({"default_account": parseInt(data['default_account'])}).then(() => {
+                            console.log("done setting info");
+                            resolve();
+                        } );
+                    } );
                 } );
             };
             reader.readAsText(file);

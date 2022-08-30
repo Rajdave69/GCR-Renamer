@@ -60,10 +60,22 @@ sleep(1).then( () => (  // After sleeping...
 
 
             else {  // If subject list or section list is not empty
-                setInterval(() => {   // Check every second
-                    renameSection(section_list);
-                    renameSubject(subject_list);
-                }, 1000);
+                get_ignore_rules().then( (res) => {
+                    console.debug(res);
+                    console.log("Ignoring Sections. Config says so.")
+                    if (res) {
+                        setInterval(() => {   // Check every second
+                            renameSubject(subject_list);
+                        }, 1000);
+
+                    } else {
+                        setInterval(() => {   // Check every second
+                            renameSubject(subject_list);
+                            renameSection(section_list);
+                        }, 1000);
+
+                    }
+                });
             }
 
         })
@@ -95,6 +107,14 @@ function get_class_list() {
             resolve(result);
         });
     });
+}
+
+function get_ignore_rules() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get('ignore-rules', (result) => {
+            resolve(result['ignore-rules']);
+        } );
+    } );
 }
 
 function get_info() {

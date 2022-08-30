@@ -18,12 +18,54 @@
         <div class="sm-12 md-8 col">
             <div class="paper">
 
+                <!-- Modals -->
+                <input class="modal-state" id="import_complete" type="checkbox">
+                <div class="modal">
+                <label class="modal-bg" for="import_complete"></label>
+                    <div class="modal-body">
+                        <label class="btn-close" for="import_complete">X</label>
+                        <h4 class="modal-title">Settings Import</h4>
+                        <h5 class="modal-subtitle">Import Successful</h5>
+                        <p class="modal-text">Importing the settings file was successful. You may visit the main extension page now <a href="./config.html">Here!</a> </p>
+                        <label for="import_complete">Thanks for using this extension!</label>
+                    </div>
+                </div>
+
+
+                <input class="modal-state" id="export_complete" type="checkbox">
+                <div class="modal">
+                <label class="modal-bg" for="export_complete"></label>
+                    <div class="modal-body">
+                        <label class="btn-close" for="export_complete">X</label>
+                        <h4 class="modal-title">Settings Export</h4>
+                        <h5 class="modal-subtitle">Export Successful</h5>
+                        <p class="modal-text">Exporting the settings file was successful. It has now been downloaded, and you may be able to find it in your downloads folder. </p>
+                        <label for="export_complete">Thanks for using this extension!</label>
+                    </div>
+                </div>
+
+
+
+
+
+
+
                 <div class="ptext-center">
                     <h1>GCR Renamer</h1>
                     <h4>Welcome to the GCR Renamer's Settings!</h4>
+                    <label>
+                        <button class="btn-secondary-outline" id="main-page">Back to Main Page</button> <br><br>
+                    </label>
                     <br>
                 </div>
 
+                <fieldset class="form-group">
+                    <p>Ignore Section names</p>
+                    <label class="paper-switch">
+                        <input id="ignore-sections" name="paperSwitch4" type="checkbox" />
+                        <span class="paper-switch-slider"></span>
+                    </label>
+                </fieldset> <br> <br>
 
                 <button id="import-btn" class="button-52">Import Settings</button> <br> <br>
                 <input id="file-input" type="file" style="display: none"> <br> <br>
