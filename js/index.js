@@ -2,13 +2,14 @@
 Storage Structure
 
  │
- ├─► info           dict: {"default_account": int} ─► Stores the auth-user which has renaming activated.
+ ├─► info  dict: {"default_account": int} ─► Stores the auth-user which has renaming activated.
  │
- ├─► class_list     dict: {"class_list": {"subject_names": list, "section_names": list}} ─► Stores the actual list of Subject and Section names which will be used to rename.
+ ├─► class_list    dict: {"class_list": {"subject_names": list, "section_names": list}} ─► Stores the actual list of Subject and Section names which will be used to rename.
  │
- └─► subject_length int ─► Stores simply the number of classes the user is in, which will be used to create the respective amount of input boxes in the front end
+ └─► ignore-rules boolean ─► Stores a boolean value which controls if section names should be ignored or not
+ */
 
-*/
+
 let subject_list = [];
 let section_list = [];
 const renameBtn = document.getElementById('rename-btn');
@@ -403,31 +404,39 @@ function toggle_rename_button(state) {
     }
 }
 
+function store_to_cloud(data) {
+    return new Promise( (resolve) => {
+        chrome.storage.sync.set(data, () => {
+            resolve();
+        });
+    });
+}
 
 function export_to_json() {
     return new Promise( (resolve) => {
         get_gcr_class_list().then((result) => {
             console.log(result);
-            let temp_json = result;
-            get_info().then((info) => {
-                temp_json['default_account'] = info['default_account'];
-                console.log(temp_json);
-                get_ignore_rules().then((ignore_rules) => {
-                    temp_json['ignore_rules'] = ignore_rules;
+            store_to_cloud({'backup': result}).then(() => {
+                let temp_json = result;
+                get_info().then((info) => {
+                    temp_json['default_account'] = info['default_account'];
                     console.log(temp_json);
+                    get_ignore_rules().then((ignore_rules) => {
+                        temp_json['ignore_rules'] = ignore_rules;
+                        console.log(temp_json);
 
-                    let json = JSON.stringify(temp_json);
-                    let blob = new Blob([json], {type: "application/json"});
-                    let url = URL.createObjectURL(blob);
-                    let a = document.createElement("a");
-                    a.href = url;
-                    a.download = "gcr_class_list.json";
-                    document.body.appendChild(a);
-                    a.click();
-                    resolve();
-                } );
-            } );
-
+                        let json = JSON.stringify(temp_json);
+                        let blob = new Blob([json], {type: "application/json"});
+                        let url = URL.createObjectURL(blob);
+                        let a = document.createElement("a");
+                        a.href = url;
+                        a.download = "gcr_class_list.json";
+                        document.body.appendChild(a);
+                        a.click();
+                        resolve();
+                    });
+                });
+            });
         }).catch((error) => {
             console.error(error);
             resolve();
@@ -448,10 +457,9 @@ function import_from_json() {
                 return;
             }
             reader.onload = function (e) {
-                let data = JSON.parse(reader.result);
+                const data = JSON.parse(reader.result);
                 console.log(data);
-                console.log(data['subject_names' + 'section_names'])
-                set_gcr_class_list(data['subject_names' + 'section_names']).then(() => {
+                set_gcr_class_list({'subject_names': data['subject_names'], 'section_names': data['section_names']}).then(() => {
                     console.log("done setting class list");
                     set_ignore_rules(data['ignore_rules']).then(() => {
                         console.log("done setting ignore rules");
