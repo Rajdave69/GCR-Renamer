@@ -13,6 +13,40 @@ Storage Structure
 let subject_list = [];
 let section_list = [];
 const renameBtn = document.getElementById('rename-btn');
+chrome.storage.local.get(['just_installed'], (res) => {
+    console.debug(res)
+    if (res.just_installed) {
+        chrome.storage.local.set({'just_installed': false});
+        chrome.storage.sync.get(['backup'], (res) => {
+            console.log("Backup: " + res.backup);
+            let temp_json = {};
+            if (res.backup !== undefined) {
+                get_info().then((info) => {
+                    console.log(info);
+                    temp_json['default_account'] = info['default_account'];
+                    get_ignore_rules().then((ignore_rules) => {
+                        temp_json['ignore_rules'] = ignore_rules;
+                        get_gcr_class_list().then((result) => {
+                            temp_json['section_names'] = result['section_names'];
+                            temp_json['subject_names'] = result['subject_names'];
+                            console.log(JSON.stringify(temp_json));
+                            console.log(JSON.stringify(res.backup));
+                            if (JSON.stringify(temp_json) !== JSON.stringify(res.backup)) {
+                                console.log("Current settings are different from backup.");
+                                console.log(JSON.stringify(temp_json) !== JSON.stringify(res.backup));
+                                let tickbox = document.getElementById("backup_found");
+                                tickbox.checked = true;
+                            } else {
+                                console.log("current settings are same as previous backup");
+                            }
+                        });
+                    });
+                });
+            }
+        });
+    }
+
+});
 
 
 // TODO : Make force dark mode for gcr
@@ -28,7 +62,7 @@ if (location.pathname === "/config.html") {
     const sectionsArea = document.getElementById('sections-area');
     const settings_page = document.getElementById('settings-page');
     // const BtnContainer = document.getElementById('lower');
-    const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+");
+    const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+"); // TODO : Add support for classroom.google.com
     let gcr_input_hidden = false;
     let _user_id;
     create_lists().then(() => {
@@ -144,7 +178,6 @@ if (location.pathname === "/config.html") {
 
 
     renameBtn.addEventListener('click', () => { // Event listener for the rename button
-
         let subject_names = [];
         let section_names = [];
         let subject_inputs = document.getElementsByClassName("subject-box");
@@ -163,33 +196,9 @@ if (location.pathname === "/config.html") {
         }).then(() => {
             console.info("Class list set");
         });
-
     });
 
-
 }
-
-
-else if (location.pathname === "/backup-import.html") {
-    console.debug("backup-import.html")
-    chrome.storage.sync.get(['backup'], (result) => {
-        console.log(result)
-        if (result['backup'] !== undefined) {
-            chrome.storage.local.set({'backup': result['backup']});
-            console.debug(result['backup']['default_account'], result['backup']['subject_names'], result['backup']['section_names'], result['backup']['ignore_rules'], result['backup']['info']);
-
-            chrome.storage.local.set({'info': {"default_account": result['backup']['default_account']}});
-
-            chrome.storage.local.set({'class_list': JSON.stringify({"subject_names": result['backup']['subject_names'], "section_names": result['backup']['section_names']})});
-            chrome.storage.local.set({'ignore-rules': result['backup']['ignore-rules']});
-
-        }
-    });
-    //location.pathname = "/config.html";
-
-}
-
-
 
 
 
@@ -200,21 +209,7 @@ else if (location.pathname === "/backup-import.html") {
 
  */
 
-function set_ignore_rules(info) {
-    return new Promise((resolve) => {
-        chrome.storage.local.set({'ignore-rules': info}, () => {
-            resolve();
-        } );
-    } );
-}
 
-function get_ignore_rules() {
-    return new Promise((resolve) => {
-        chrome.storage.local.get('ignore-rules', (result) => {
-            resolve(result['ignore-rules']);
-        } );
-    } );
-}
 
 
 function set_info(account_info) {
@@ -389,4 +384,10 @@ function get_from_cloud(key) {
     });
 }
 
-
+function get_ignore_rules() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get('ignore-rules', (result) => {
+            resolve(result['ignore-rules']);
+        } );
+    } );
+}

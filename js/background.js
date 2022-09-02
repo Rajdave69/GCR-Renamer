@@ -13,19 +13,8 @@ chrome.runtime.onInstalled.addListener(async () => {
 
     set_default_values().then( () => {
         console.log("Default values set");
-        chrome.storage.sync.get(['backup'], (result) => {
-            console.log(result)
-            if (result['backup'] !== undefined) {
-                chrome.storage.local.set({'backup': result['backup']});
-                console.debug(result['backup']['default_account'], result['backup']['subject_names'], result['backup']['section_names'], result['backup']['ignore_rules'], result['backup']['info']);
+        chrome.storage.local.set({'just_installed': true});
 
-                chrome.storage.local.set({'info': {"default_account": result['backup']['default_account']}});
-
-                chrome.storage.local.set({'class_list': JSON.stringify({"subject_names": result['backup']['subject_names'], "section_names": result['backup']['section_names']})});
-                chrome.storage.local.set({'ignore-rules': result['backup']['ignore-rules']});
-
-            }
-        });
     });
 });
 
@@ -78,6 +67,7 @@ function set_default_values() {
         }).catch((e) => {
             console.log(e);
         });
+
         resolve(true);
     });
 }
