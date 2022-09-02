@@ -17,7 +17,6 @@ chrome.runtime.onInstalled.addListener(async () => {
             console.log(result)
             if (result['backup'] !== undefined) {
                 chrome.storage.local.set({'backup': result['backup']});
-                // TODO : test if this works
                 console.debug(result['backup']['default_account'], result['backup']['subject_names'], result['backup']['section_names'], result['backup']['ignore_rules'], result['backup']['info']);
 
                 chrome.storage.local.set({'info': {"default_account": result['backup']['default_account']}});

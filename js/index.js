@@ -169,56 +169,24 @@ if (location.pathname === "/config.html") {
 
 }
 
-else if (location.pathname === "/settings.html") {
-    console.debug("settings.html");
-    const export_btn = document.getElementById('export-btn');
-    const import_btn = document.getElementById('import-btn');
-    const file_input = document.getElementById('file-input');
-    const ignore_section_toggle = document.getElementById('ignore-sections');
-    const back_button = document.getElementById('main-page');
 
-    get_ignore_rules().then( (res) => {
-        ignore_section_toggle.checked = !!res;
-    })
+else if (location.pathname === "/backup-import.html") {
+    console.debug("backup-import.html")
+    chrome.storage.sync.get(['backup'], (result) => {
+        console.log(result)
+        if (result['backup'] !== undefined) {
+            chrome.storage.local.set({'backup': result['backup']});
+            console.debug(result['backup']['default_account'], result['backup']['subject_names'], result['backup']['section_names'], result['backup']['ignore_rules'], result['backup']['info']);
 
-    back_button.addEventListener('click', () => {
-        window.location.href = "config.html";
-    } );
+            chrome.storage.local.set({'info': {"default_account": result['backup']['default_account']}});
 
+            chrome.storage.local.set({'class_list': JSON.stringify({"subject_names": result['backup']['subject_names'], "section_names": result['backup']['section_names']})});
+            chrome.storage.local.set({'ignore-rules': result['backup']['ignore-rules']});
 
-    // add event listener to ignore_section_toggle to detect toggle state
-    ignore_section_toggle.addEventListener('change', () => {
-        console.debug("ignore_section_toggle changed");
-        if (ignore_section_toggle.checked) {
-            set_ignore_rules(true).then(() => {
-                console.info("Ignore sections set to true");
-            });
-        } else {
-            set_ignore_rules(false).then(() => {
-                console.info("Ignore sections set to false");
-            });
         }
     });
+    //location.pathname = "/config.html";
 
-
-    export_btn.addEventListener('click', () => {
-        export_to_json().then( () => {
-            let tick_box = document.getElementById('export_complete');
-            tick_box.checked = true;
-        });
-    } );
-
-
-    import_btn.addEventListener('click', () => {
-        file_input.style.display = "block";
-        import_from_json().then( () => {
-            file_input.style.display = "none";
-
-            let tick_box = document.getElementById('import_complete');
-            tick_box.checked = true;
-
-        } );
-    } );
 }
 
 
@@ -422,61 +390,3 @@ function get_from_cloud(key) {
 }
 
 
-function export_to_json() {
-    return new Promise( (resolve) => {
-        get_gcr_class_list().then((result) => {
-            console.log(result);
-            let temp_json = result;
-            get_info().then((info) => {
-                temp_json['default_account'] = info['default_account'];
-                console.log(temp_json);
-                get_ignore_rules().then((ignore_rules) => {
-                    temp_json['ignore_rules'] = ignore_rules;
-                    console.log(temp_json);
-                    store_to_cloud({'backup': temp_json}).then(() => {
-                        let json = JSON.stringify(temp_json);
-                        let blob = new Blob([json], {type: "application/json"});
-                        let url = URL.createObjectURL(blob);
-                        let a = document.createElement("a");
-                        a.href = url;
-                        a.download = "gcr_class_list.json";
-                        document.body.appendChild(a);
-                        a.click();
-                        resolve();
-                    });
-                });
-            });
-        });
-    });
-}
-
-function import_from_json() {
-    return new Promise( (resolve) => {
-
-        let fileInput = document.getElementById('file-input');
-        fileInput.addEventListener('change', function (e) {
-            let file = fileInput.files[0];
-            let reader = new FileReader();
-            // check if file is a json file
-            if (file.name.split('.').pop() !== 'json') {
-                alert("Please select a JSON file");
-                return;
-            }
-            reader.onload = function (e) {
-                const data = JSON.parse(reader.result);
-                console.log(data);
-                set_gcr_class_list({'subject_names': data['subject_names'], 'section_names': data['section_names']}).then(() => {
-                    console.log("done setting class list");
-                    set_ignore_rules(data['ignore_rules']).then(() => {
-                        console.log("done setting ignore rules");
-                        set_info({"default_account": parseInt(data['default_account'])}).then(() => {
-                            console.log("done setting info");
-                            resolve();
-                        } );
-                    } );
-                } );
-            };
-            reader.readAsText(file);
-        });
-    } );
-}
