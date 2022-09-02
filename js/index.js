@@ -412,19 +412,28 @@ function store_to_cloud(data) {
     });
 }
 
+
+function get_from_cloud(key) {
+    return new Promise( (resolve) => {
+        chrome.storage.sync.get([key], (result) => {
+            resolve(result[key]);
+        });
+    });
+}
+
+
 function export_to_json() {
     return new Promise( (resolve) => {
         get_gcr_class_list().then((result) => {
             console.log(result);
-            store_to_cloud({'backup': result}).then(() => {
-                let temp_json = result;
-                get_info().then((info) => {
-                    temp_json['default_account'] = info['default_account'];
+            let temp_json = result;
+            get_info().then((info) => {
+                temp_json['default_account'] = info['default_account'];
+                console.log(temp_json);
+                get_ignore_rules().then((ignore_rules) => {
+                    temp_json['ignore_rules'] = ignore_rules;
                     console.log(temp_json);
-                    get_ignore_rules().then((ignore_rules) => {
-                        temp_json['ignore_rules'] = ignore_rules;
-                        console.log(temp_json);
-
+                    store_to_cloud({'backup': temp_json}).then(() => {
                         let json = JSON.stringify(temp_json);
                         let blob = new Blob([json], {type: "application/json"});
                         let url = URL.createObjectURL(blob);
@@ -437,11 +446,8 @@ function export_to_json() {
                     });
                 });
             });
-        }).catch((error) => {
-            console.error(error);
-            resolve();
-        } );
-    } );
+        });
+    });
 }
 
 function import_from_json() {

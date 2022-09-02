@@ -1,41 +1,34 @@
 
 chrome.runtime.onInstalled.addListener(async () => {
 
+    /*
+         >> First time installation functions
+
+         This below code sets default values to the storage (if empty), on install.
+    */
+
     let url = chrome.runtime.getURL("config.html");
     let tab = await chrome.tabs.create({url});
     console.log(`Created tab ${tab.id}`);
 
-/*
-     >> First time install functions
+    set_default_values().then( () => {
+        console.log("Default values set");
+        chrome.storage.sync.get(['backup'], (result) => {
+            console.log(result)
+            if (result['backup'] !== undefined) {
+                chrome.storage.local.set({'backup': result['backup']});
+                // TODO : test if this works
+                console.debug(result['backup']['default_account'], result['backup']['subject_names'], result['backup']['section_names'], result['backup']['ignore_rules'], result['backup']['info']);
 
-     This below code sets default values to the storage (if empty), on install.
-*/
+                chrome.storage.local.set({'info': {"default_account": result['backup']['default_account']}});
 
-    chrome.storage.local.get(['info']).then( (result) => {
-        try {
-            if (isNaN(result.info['default_account']) || result.info['default_account'] === "") {
-                chrome.storage.local.set({'info': {'default_account': -1}});
+                chrome.storage.local.set({'class_list': JSON.stringify({"subject_names": result['backup']['subject_names'], "section_names": result['backup']['section_names']})});
+                chrome.storage.local.set({'ignore-rules': result['backup']['ignore-rules']});
+
             }
-        }
-        catch (e) {
-            console.log("No info found");
-            chrome.storage.local.set({'info': {'default_account': -1}})
-        }
-    })});
-
-    chrome.storage.local.get(["class_list"]).then( (result) => {
-        if (result.class_list === undefined) {
-            chrome.storage.local.set({'class_list': JSON.stringify({"subject_names": [], "section_names": []})});
-        }
+        });
     });
-
-    chrome.storage.local.get(['ignore-rules']).then( (result) => {
-        if (result['ignore-rules'] === undefined) {
-            chrome.storage.local.set({'ignore-rules': false});
-        }
-    }).catch( (e) => {
-        console.log(e);
-    } );
+});
 
 
 
@@ -50,9 +43,42 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 
 
 
+
 chrome.action.onClicked.addListener(function() {
     let url = chrome.runtime.getURL("config.html");
     let tab = chrome.tabs.create({ url });
     console.log(`Created tab ${tab.id}`);
     console.log("I was clicked");
 });
+
+
+
+function set_default_values() {
+    return new Promise( (resolve) => {
+        chrome.storage.local.get(['info']).then((result) => {
+            try {
+                if (isNaN(result.info['default_account']) || result.info['default_account'] === "") {
+                    chrome.storage.local.set({'info': {'default_account': -1}});
+                }
+            } catch (e) {
+                console.log("No info found");
+                chrome.storage.local.set({'info': {'default_account': -1}})
+            }
+        });
+
+        chrome.storage.local.get(["class_list"]).then((result) => {
+            if (result.class_list === undefined) {
+                chrome.storage.local.set({'class_list': JSON.stringify({"subject_names": [], "section_names": []})});
+            }
+        });
+
+        chrome.storage.local.get(['ignore-rules']).then((result) => {
+            if (result['ignore-rules'] === undefined) {
+                chrome.storage.local.set({'ignore-rules': false});
+            }
+        }).catch((e) => {
+            console.log(e);
+        });
+        resolve(true);
+    });
+}
