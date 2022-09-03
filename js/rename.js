@@ -28,9 +28,13 @@ get_from_local('class_list').then( (result) => {    // Get GCR subject and secti
     //const found_subjects = document.getElementsByClassName("z3vRcc-ZoZQ1"); // Get the list of subjects in the page
 
     // check if subject list and section list are empty
-    if (subject_list.length === 0 || section_list.length === 0) {   // If subject list or section list is empty
+    if (subject_list === undefined) {
+        console.log("Subject list is empty");
+    }
+    else if (subject_list.length < 1) {   // If subject list or section list is empty
         console.log("Subject or section list is empty");
     }
+
 
 
 

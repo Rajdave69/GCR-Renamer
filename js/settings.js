@@ -68,6 +68,7 @@ function export_to_json() {
                 temp_json['ignore_sections'] = ignore_sections;
                 console.log(temp_json);
                 get_from_local('account_id').then( (id) => {
+                    temp_json['account_id'] = id;
                     store_to_cloud({'backup': temp_json}).then(() => {
                         let json = JSON.stringify(temp_json);
                         let blob = new Blob([json], {type: "application/json"});
@@ -90,7 +91,7 @@ function import_from_json() {
     return new Promise( (resolve) => {
 
         let fileInput = document.getElementById('file-input');
-        fileInput.addEventListener('change', function (e) {
+        fileInput.addEventListener('change', function () {
             let file = fileInput.files[0];
             let reader = new FileReader();
             // check if file is a json file
@@ -98,7 +99,7 @@ function import_from_json() {
                 alert("Please select a JSON file");
                 return;
             }
-            reader.onload = function (e) {
+            reader.onload = function() {
                 const data = JSON.parse(reader.result);
                 console.log(data);
                 store_to_local('class_list', {'subject_names': data['subject_names'], 'section_names': data['section_names']}).then(() => {

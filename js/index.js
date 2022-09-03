@@ -59,7 +59,10 @@ if (location.pathname === "/config.html") {
     // const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+"); // TODO : Add support for classroom.google.com
     create_lists().then(() => {
         get_from_local('class_list').then((result) => {
-            if (result['subject_names'].length > 0) {
+            if (result['subject_names'] === undefined) {
+                console.log('subject names is undefined')
+            }
+            else if (result['subject_names'].length > 0) {
                 create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
                 toggle_rename_button("on");
 
@@ -195,12 +198,16 @@ function create_boxes(number, subjectsArea, sectionsArea) {
 
 function create_lists() {
     return new Promise((resolve) => {
-        get_from_local('class_list').then((result) => {
+        get_from_local('class_list').then( (result) => {
             console.debug(result);
+            if (result['subject_names'] === undefined) {
+                console.log("No class list found")
+            } else {
 
-            for (let i = 0; i < result['subject_names'].length; i++) {
-                subject_list.push(result['subject_names'][i]);
-                section_list.push(result['section_names'][i]);
+                for (let i = 0; i < result['subject_names'].length; i++) {
+                    subject_list.push(result['subject_names'][i]);
+                    section_list.push(result['section_names'][i]);
+                }
             }
 
         });
@@ -227,7 +234,7 @@ function store_to_cloud(data) {
     });
 }
 
-
+/*
 function get_from_cloud(key) {
     return new Promise( (resolve) => {
         chrome.storage.sync.get([key], (result) => {
@@ -235,6 +242,7 @@ function get_from_cloud(key) {
         });
     });
 }
+*/
 
 function save_backup() {
     get_from_local('class_list').then((result) => {
