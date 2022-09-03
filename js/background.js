@@ -43,6 +43,7 @@ chrome.action.onClicked.addListener(function() {
 
 function set_default_values() {
     return new Promise( (resolve) => {
+        /*
         chrome.storage.local.get(['info']).then((result) => {
             try {
                 if (isNaN(result.info['default_account']) || result.info['default_account'] === "") {
@@ -53,6 +54,7 @@ function set_default_values() {
                 chrome.storage.local.set({'info': {'default_account': -1}})
             }
         });
+        */
 
         chrome.storage.local.get(["class_list"]).then((result) => {
             if (result.class_list === undefined) {

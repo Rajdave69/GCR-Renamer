@@ -13,6 +13,12 @@ Storage Structure
 let subject_list = [];
 let section_list = [];
 const renameBtn = document.getElementById('rename-btn');
+const submitBtn = document.getElementById('submit');
+const classesAmount = document.getElementById('classes-amount');
+const subjectsArea = document.getElementById('subjects-area');
+const sectionsArea = document.getElementById('sections-area');
+const settings_page = document.getElementById('settings-page');
+
 chrome.storage.local.get(['just_installed'], (res) => {
     console.debug(res)
     if (res.just_installed) {
@@ -21,31 +27,26 @@ chrome.storage.local.get(['just_installed'], (res) => {
             console.log("Backup: " + res.backup);
             let temp_json = {};
             if (res.backup !== undefined) {
-                get_info().then((info) => {
-                    console.log(info);
-                    temp_json['default_account'] = info['default_account'];
-                    get_ignore_rules().then((ignore_rules) => {
-                        temp_json['ignore_rules'] = ignore_rules;
-                        get_gcr_class_list().then((result) => {
-                            temp_json['section_names'] = result['section_names'];
-                            temp_json['subject_names'] = result['subject_names'];
-                            console.log(JSON.stringify(temp_json));
-                            console.log(JSON.stringify(res.backup));
-                            if (JSON.stringify(temp_json) !== JSON.stringify(res.backup)) {
-                                console.log("Current settings are different from backup.");
-                                console.log(JSON.stringify(temp_json) !== JSON.stringify(res.backup));
-                                let tickbox = document.getElementById("backup_found");
-                                tickbox.checked = true;
-                            } else {
-                                console.log("current settings are same as previous backup");
-                            }
-                        });
+                get_ignore_rules().then((ignore_rules) => {
+                    temp_json['ignore_rules'] = ignore_rules;
+                    get_gcr_class_list().then((result) => {
+                        temp_json['section_names'] = result['section_names'];
+                        temp_json['subject_names'] = result['subject_names'];
+                        console.debug(JSON.stringify(temp_json));
+                        console.debug(JSON.stringify(res.backup));
+                        if (JSON.stringify(temp_json) !== JSON.stringify(res.backup)) {
+                            console.log("Current settings are different from backup.");
+                            console.log(JSON.stringify(temp_json) !== JSON.stringify(res.backup));
+                            let tickbox = document.getElementById("backup_found");
+                            tickbox.checked = true;
+                        } else {
+                            console.log("current settings are same as previous backup");
+                        }
                     });
                 });
             }
         });
     }
-
 });
 
 
@@ -54,17 +55,8 @@ console.log("JS Loaded");
 console.log(location.pathname)
 // index.html JS
 if (location.pathname === "/config.html") {
-
-    const submitBtn = document.getElementById('submit');
-    const classroomURL = document.getElementById('gcr-url');
-    const classesAmount = document.getElementById('classes-amount');
-    const subjectsArea = document.getElementById('subjects-area');
-    const sectionsArea = document.getElementById('sections-area');
-    const settings_page = document.getElementById('settings-page');
     // const BtnContainer = document.getElementById('lower');
-    const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+"); // TODO : Add support for classroom.google.com
-    let gcr_input_hidden = false;
-    let _user_id;
+    // const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+"); // TODO : Add support for classroom.google.com
     create_lists().then(() => {
         get_gcr_class_list().then((result) => {
             if (result['subject_names'].length > 0) {
@@ -80,40 +72,23 @@ if (location.pathname === "/config.html") {
     })
 
 
-    /*
-        >> Event Listeners
+/*
 
-           This part of the code is responsible for listening to events and performing actions accordingly.
-           It contains only event listeners.
-    */
+    >> Event Listeners
+
+       This part of the code is responsible for listening to events and performing actions accordingly.
+       It contains only event listeners.
+
+*/
 
     settings_page.addEventListener('click', () => {
         window.location.href = "settings.html";
     })
 
     submitBtn.addEventListener('click', () => { // Event listener for the submit button
-
-        let URL = classroomURL.value.trim();
         const amount = classesAmount.value.trim();
-        let URLError;
         let amountError1;
         let amountError2;
-
-        if (!expForURL.test(URL)) { // If the URL is not valid
-            URLError = true;
-            classroomURL.style.border = "1px solid red";
-        } else {    // If the URL is valid
-            classroomURL.style.border = "1px solid white";
-            URLError = false;
-        }
-        if (_user_id < 0) {
-            // unhide the input field
-            toggle_url_input("on");
-        } else {
-            if (gcr_input_hidden) {
-                URLError = false;
-            }
-        }
 
         if (isNaN(parseInt(amount))) {  // If amount is not NaN and is not empty
             amountError1 = true;
@@ -131,48 +106,17 @@ if (location.pathname === "/config.html") {
             classesAmount.style.border = "1px solid white";
         }
 
-        console.debug(amountError1, amountError2, URLError);
+        console.debug(amountError1, amountError2);
 
         // false = valid, true = invalid
-        if (!URLError && !amountError1 && !amountError2) {    // If both inputs are valid
-            get_info().then((result) => {
-                if (URL != "") {   // If URL is not empty
-                    URL = URL.split("/");
-                    console.debug(URL);
-
-                    for (let i = 0; i < URL.length; i++) {
-                        if (!isNaN(URL[i]) && URL[i] !== "") {
-                            user_id = URL[i];
-                            break;
-                        }
-                    }
-                    console.info("User ID: " + user_id);
-                    set_info({"default_account": user_id});
-                    toggle_url_input("off");
-
-                    if (isNaN(parseInt(result))) {  // If result is not a number
-                        set_info({"default_account": user_id});
-
-                    } else { // If result is a number
-
-                        if (parseInt(result) === parseInt(user_id)) { // If result is equal to user_id
-                            console.info("User ID is the same as the one in storage");
-                        } else {                // If result is not equal to user_id
-                            set_info({"default_account": user_id}).then(() => {
-                                console.info("User ID has been updated");
-                            });
-
-                        }
-                    }
-                }
-
-                create_lists(true).then(() => {
-                    console.debug("created lists")
-                    create_boxes(parseInt(amount), subjectsArea, sectionsArea);
-                    toggle_rename_button("on");
-                })
+        if (!amountError1 && !amountError2) {    // If both inputs are valid
+            create_lists(true).then(() => {
+                console.debug("created lists")
+                create_boxes(parseInt(amount), subjectsArea, sectionsArea);
+                store_to_cloud({'backup': temp_json})
 
             });
+
         }
     });
 
@@ -195,6 +139,7 @@ if (location.pathname === "/config.html") {
             "section_names": section_names
         }).then(() => {
             console.info("Class list set");
+            save_backup();
         });
     });
 
@@ -209,31 +154,6 @@ if (location.pathname === "/config.html") {
 
  */
 
-
-
-
-function set_info(account_info) {
-    return new Promise(function (resolve) {
-        chrome.storage.local.set({info: account_info}, function () {
-        resolve();
-        });
-    })
-}
-
-
-function get_info() {
-    return new Promise(function (resolve) {
-        chrome.storage.local.get(['info'], function (result) {
-            if (isNaN(result.info['default_account']) || result.info['default_account'] === "") {
-                resolve(undefined);
-                console.debug(`get_info: [undefined] ${JSON.stringify(result.info)}`);
-            } else {
-                resolve(result.info);
-                console.debug(`get_info: ${JSON.stringify(result.info)}`);
-            }
-        });
-    });
-}
 
 function set_gcr_class_list(info) {
     return new Promise(function (resolve) {
@@ -259,7 +179,7 @@ function get_gcr_class_list() {
 function create_boxes(number, subjectsArea, sectionsArea) {
     let _subject_boxes = [], _section_boxes = [];
 
-        subjectsArea.innerText = "";
+    subjectsArea.innerText = "";
     sectionsArea.innerText = "";
 
     const subjectHeading = document.createElement('h4');
@@ -295,67 +215,21 @@ function create_boxes(number, subjectsArea, sectionsArea) {
 
 }
 
-function create_lists(ignore_userid = false) {
-    return new Promise( (resolve) => {
-        if (ignore_userid) {
-           toggle_url_input("off");
-           console.debug("ignoring user id");
+function create_lists() {
+    return new Promise((resolve) => {
+        get_gcr_class_list().then((result) => {
+            console.debug(result);
 
-           get_gcr_class_list().then((result) => {
-               console.log(result);
-
-               for (let i = 0; i < result['subject_names'].length; i++) {
-                   subject_list.push(result['subject_names'][i]);
-                   section_list.push(result['section_names'][i]);
-               }
-
-           });
-            return resolve();
-        }
-
-        get_info().then((info) => {
-            _user_id = info["default_account"];
-            console.log(_user_id);
-
-            if (parseInt(_user_id) > -1) { // If the user has a default account
-                toggle_url_input("off");
-                console.debug("user id is over -1");
-
-                get_gcr_class_list().then((result) => {
-                    console.log(result);
-
-                    for (let i = 0; i < result['subject_names'].length; i++) {
-                        subject_list.push(result['subject_names'][i]);
-                        section_list.push(result['section_names'][i]);
-                    }
-
-                    console.debug(_user_id)
-
-                });
-
-            } else {                    // If the user does not have a default account
-
+            for (let i = 0; i < result['subject_names'].length; i++) {
+                subject_list.push(result['subject_names'][i]);
+                section_list.push(result['section_names'][i]);
             }
-            resolve();
+
         });
+        resolve();
     });
 }
 
-function toggle_url_input(state = "on") {
-    let gcr_url_input = document.getElementById("gcr-url-input");
-
-    if (state === "on") {
-        gcr_url_input.style.display = "block";
-        console.info("No URL found in storage");
-
-        gcr_input_hidden = false;
-    } else {
-        gcr_url_input.style.display = "none";
-        console.info("URL was entered before. Hiding input field.");
-
-        gcr_input_hidden = true;
-    }
-}
 
 
 function toggle_rename_button(state) {
@@ -390,4 +264,21 @@ function get_ignore_rules() {
             resolve(result['ignore-rules']);
         } );
     } );
+}
+
+function save_backup() {
+    get_gcr_class_list().then((result) => {
+        console.log(result);
+        let temp_json = result;
+        get_ignore_rules().then((ignore_rules) => {
+            temp_json['ignore_rules'] = ignore_rules;
+            console.log(temp_json);
+            store_to_cloud({'backup': temp_json}).then(() => {
+                console.log("Backup saved to cloud");
+                // TODO: Make it save locally too
+            });
+
+        });
+    });
+
 }

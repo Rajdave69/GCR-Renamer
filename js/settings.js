@@ -63,23 +63,19 @@ function export_to_json() {
         get_gcr_class_list().then((result) => {
             console.log(result);
             let temp_json = result;
-            get_info().then((info) => {
-                temp_json['default_account'] = info['default_account'];
+            get_ignore_rules().then((ignore_rules) => {
+                temp_json['ignore_rules'] = ignore_rules;
                 console.log(temp_json);
-                get_ignore_rules().then((ignore_rules) => {
-                    temp_json['ignore_rules'] = ignore_rules;
-                    console.log(temp_json);
-                    store_to_cloud({'backup': temp_json}).then(() => {
-                        let json = JSON.stringify(temp_json);
-                        let blob = new Blob([json], {type: "application/json"});
-                        let url = URL.createObjectURL(blob);
-                        let a = document.createElement("a");
-                        a.href = url;
-                        a.download = "gcr_class_list.json";
-                        document.body.appendChild(a);
-                        a.click();
-                        resolve();
-                    });
+                store_to_cloud({'backup': temp_json}).then(() => {
+                    let json = JSON.stringify(temp_json);
+                    let blob = new Blob([json], {type: "application/json"});
+                    let url = URL.createObjectURL(blob);
+                    let a = document.createElement("a");
+                    a.href = url;
+                    a.download = "gcr_class_list.json";
+                    document.body.appendChild(a);
+                    a.click();
+                    resolve();
                 });
             });
         });
