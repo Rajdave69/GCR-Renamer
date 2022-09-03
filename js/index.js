@@ -27,9 +27,9 @@ chrome.storage.local.get(['just_installed'], (res) => {
             console.log("Backup: " + res.backup);
             let temp_json = {};
             if (res.backup !== undefined) {
-                get_ignore_rules().then((ignore_rules) => {
-                    temp_json['ignore_rules'] = ignore_rules;
-                    get_gcr_class_list().then((result) => {
+                get_from_local('ignore_sections').then((ignore_sections) => {
+                    temp_json['ignore_sections'] = ignore_sections;
+                    get_from_local('class_list').then((result) => {
                         temp_json['section_names'] = result['section_names'];
                         temp_json['subject_names'] = result['subject_names'];
                         console.debug(JSON.stringify(temp_json));
@@ -58,7 +58,7 @@ if (location.pathname === "/config.html") {
     // const BtnContainer = document.getElementById('lower');
     // const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+"); // TODO : Add support for classroom.google.com
     create_lists().then(() => {
-        get_gcr_class_list().then((result) => {
+        get_from_local('class_list').then((result) => {
             if (result['subject_names'].length > 0) {
                 create_boxes(result['subject_names'].length, subjectsArea, sectionsArea);
                 toggle_rename_button("on");
@@ -113,7 +113,7 @@ if (location.pathname === "/config.html") {
             create_lists(true).then(() => {
                 console.debug("created lists")
                 create_boxes(parseInt(amount), subjectsArea, sectionsArea);
-                store_to_cloud({'backup': temp_json})
+                toggle_rename_button("on");
 
             });
 
@@ -134,7 +134,7 @@ if (location.pathname === "/config.html") {
         }
         console.info("Subjects: " + JSON.stringify(subject_names));
         console.info("Sections: " + JSON.stringify(section_names));
-        set_gcr_class_list({
+        store_to_local("class_list", {
             "subject_names": subject_names,
             "section_names": section_names
         }).then(() => {
@@ -149,36 +149,17 @@ if (location.pathname === "/config.html") {
 
 /*
     >> Functions
+
         This part of the code contains all the functions that are used in the code.
         It contains all the functions that are used in the code.
 
  */
 
 
-function set_gcr_class_list(info) {
-    return new Promise(function (resolve) {
-        chrome.storage.local.set({"class_list": JSON.stringify(info)}, () => {
-                console.debug('Value for class_list set to ' + JSON.stringify(info));
-                console.debug(info);
-                resolve();
-            }
-        )
-    });
-}
 
-function get_gcr_class_list() {
-    return new Promise( (resolve) => {
-        chrome.storage.local.get(['class_list'], (result) => {
-            console.log(result.class_list);
-            resolve(JSON.parse(result.class_list));
-        });
-    });
-}
 
 
 function create_boxes(number, subjectsArea, sectionsArea) {
-    let _subject_boxes = [], _section_boxes = [];
-
     subjectsArea.innerText = "";
     sectionsArea.innerText = "";
 
@@ -206,9 +187,6 @@ function create_boxes(number, subjectsArea, sectionsArea) {
         boxForSection.style.marginLeft = "auto";
         boxForSection.required = true;
 
-        _subject_boxes.push(boxForSubject);
-        _section_boxes.push(boxForSection);
-
         subjectsArea.appendChild(boxForSubject);
         sectionsArea.appendChild(boxForSection);
     }
@@ -217,7 +195,7 @@ function create_boxes(number, subjectsArea, sectionsArea) {
 
 function create_lists() {
     return new Promise((resolve) => {
-        get_gcr_class_list().then((result) => {
+        get_from_local('class_list').then((result) => {
             console.debug(result);
 
             for (let i = 0; i < result['subject_names'].length; i++) {
@@ -258,27 +236,35 @@ function get_from_cloud(key) {
     });
 }
 
-function get_ignore_rules() {
-    return new Promise((resolve) => {
-        chrome.storage.local.get('ignore-rules', (result) => {
-            resolve(result['ignore-rules']);
-        } );
-    } );
-}
-
 function save_backup() {
-    get_gcr_class_list().then((result) => {
+    get_from_local('class_list').then((result) => {
         console.log(result);
         let temp_json = result;
-        get_ignore_rules().then((ignore_rules) => {
-            temp_json['ignore_rules'] = ignore_rules;
+        get_from_local('ignore_sections').then((ignore_sections) => {
+            temp_json['ignore_sections'] = ignore_sections;
             console.log(temp_json);
             store_to_cloud({'backup': temp_json}).then(() => {
                 console.log("Backup saved to cloud");
                 // TODO: Make it save locally too
             });
-
         });
     });
+}
 
+function store_to_local(data_type, data) {
+    return new Promise( (resolve) => {
+        chrome.storage.local.set({[data_type]: data}, () => {
+            resolve();
+        });
+
+    });
+}
+
+function get_from_local(data_type) {
+    return new Promise( (resolve) => {
+        chrome.storage.local.get([data_type], (result) => {
+            resolve(result[data_type]);
+        });
+
+    });
 }

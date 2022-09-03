@@ -6,24 +6,25 @@ const ignore_section_toggle = document.getElementById('ignore-sections');
 const back_button = document.getElementById('main-page');
 
 
-get_ignore_rules().then( (res) => {
+get_from_local('ignore_sections').then( (res) => {
     ignore_section_toggle.checked = !!res;
 })
 
 back_button.addEventListener('click', () => {
     window.location.href = "config.html";
-} );
+});
 
 
 // add event listener to ignore_section_toggle to detect toggle state
 ignore_section_toggle.addEventListener('change', () => {
     console.debug("ignore_section_toggle changed");
     if (ignore_section_toggle.checked) {
-        set_ignore_rules(true).then(() => {
+        store_to_local('ignore_sections', true).then(() => {
             console.info("Ignore sections set to true");
         });
+
     } else {
-        set_ignore_rules(false).then(() => {
+        store_to_local('ignore_sections',false).then(() => {
             console.info("Ignore sections set to false");
         });
     }
@@ -44,7 +45,7 @@ import_btn.addEventListener('click', () => {
         file_input.style.display = "none";
 
         let tick_box = document.getElementById('import_complete');
-            tick_box.checked = true;
+        tick_box.checked = true;
 
     });
 });
@@ -60,22 +61,24 @@ import_btn.addEventListener('click', () => {
 
 function export_to_json() {
     return new Promise( (resolve) => {
-        get_gcr_class_list().then((result) => {
+        get_from_local('class_list').then((result) => {
             console.log(result);
             let temp_json = result;
-            get_ignore_rules().then((ignore_rules) => {
-                temp_json['ignore_rules'] = ignore_rules;
+            get_from_local('ignore_sections').then((ignore_sections) => {
+                temp_json['ignore_sections'] = ignore_sections;
                 console.log(temp_json);
-                store_to_cloud({'backup': temp_json}).then(() => {
-                    let json = JSON.stringify(temp_json);
-                    let blob = new Blob([json], {type: "application/json"});
-                    let url = URL.createObjectURL(blob);
-                    let a = document.createElement("a");
-                    a.href = url;
-                    a.download = "gcr_class_list.json";
-                    document.body.appendChild(a);
-                    a.click();
-                    resolve();
+                get_from_local('account_id').then( (id) => {
+                    store_to_cloud({'backup': temp_json}).then(() => {
+                        let json = JSON.stringify(temp_json);
+                        let blob = new Blob([json], {type: "application/json"});
+                        let url = URL.createObjectURL(blob);
+                        let a = document.createElement("a");
+                        a.href = url;
+                        a.download = "gcr_class_list.json";
+                        document.body.appendChild(a);
+                        a.click();
+                        resolve();
+                    });
                 });
             });
         });
@@ -98,70 +101,37 @@ function import_from_json() {
             reader.onload = function (e) {
                 const data = JSON.parse(reader.result);
                 console.log(data);
-                set_gcr_class_list({'subject_names': data['subject_names'], 'section_names': data['section_names']}).then(() => {
+                store_to_local('class_list', {'subject_names': data['subject_names'], 'section_names': data['section_names']}).then(() => {
                     console.log("done setting class list");
-                    set_ignore_rules(data['ignore_rules']).then(() => {
+                    store_to_local('ignore_sections', data['ignore_sections']).then(() => {
                         console.log("done setting ignore rules");
-                        set_info({"default_account": parseInt(data['default_account'])}).then(() => {
-                            console.log("done setting info");
+                        store_to_local('account_id', data['account_id']).then(() => {
+                            console.log("done setting account id");
                             resolve();
-                        } );
-                    } );
-                } );
+                        });
+                    });
+                });
             };
             reader.readAsText(file);
         });
-    } );
+    });
 }
 
 
-function get_ignore_rules() {
-    return new Promise((resolve) => {
-        chrome.storage.local.get('ignore-rules', (result) => {
-            resolve(result['ignore-rules']);
-        } );
-    } );
-}
-
-function set_ignore_rules(value) {
-    return new Promise((resolve) => {
-        chrome.storage.local.set({'ignore-rules': value}, () => {
-            resolve();
-        } );
-    } );
-}
-
-function get_gcr_class_list() {
+function get_from_local(data_type) {
     return new Promise( (resolve) => {
-        chrome.storage.local.get(['class_list'], (result) => {
-            console.log(result.class_list);
-            resolve(JSON.parse(result.class_list));
+        chrome.storage.local.get([data_type], (result) => {
+            resolve(result[data_type]);
         });
+
     });
 }
 
-function get_info() {
-    return new Promise(function (resolve) {
-        chrome.storage.local.get(['info'], function (result) {
-            if (isNaN(result.info['default_account']) || result.info['default_account'] === "") {
-                resolve(undefined);
-                console.debug(`get_info: [undefined] ${JSON.stringify(result.info)}`);
-            } else {
-                resolve(result.info);
-                console.debug(`get_info: ${JSON.stringify(result.info)}`);
-            }
+function store_to_local(data_type, data) {
+    return new Promise( (resolve) => {
+        chrome.storage.local.set({[data_type]: data}, () => {
+            resolve();
         });
-    });
-}
-
-function set_gcr_class_list(info) {
-    return new Promise(function (resolve) {
-        chrome.storage.local.set({"class_list": JSON.stringify(info)}, () => {
-                console.debug('Value for class_list set to ' + JSON.stringify(info));
-                console.debug(info);
-                resolve();
-            }
-        )
     });
 }
 
@@ -173,11 +143,5 @@ function store_to_cloud(data) {
     });
 }
 
-function set_info(account_info) {
-    return new Promise(function (resolve) {
-        chrome.storage.local.set({info: account_info}, function () {
-        resolve();
-        });
-    })
-}
+
 

@@ -62,9 +62,9 @@ function set_default_values() {
             }
         });
 
-        chrome.storage.local.get(['ignore-rules']).then((result) => {
-            if (result['ignore-rules'] === undefined) {
-                chrome.storage.local.set({'ignore-rules': false});
+        chrome.storage.local.get(['ignore_rules']).then((result) => {
+            if (result['ignore_rules'] === undefined) {
+                chrome.storage.local.set({'ignore_rules': false});
             }
         }).catch((e) => {
             console.log(e);
