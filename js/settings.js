@@ -11,7 +11,7 @@ get_from_local('ignore_sections').then( (res) => {
 })
 
 back_button.addEventListener('click', () => {
-    window.location.href = "config.html";
+    window.location.href = "index.html";
 });
 
 

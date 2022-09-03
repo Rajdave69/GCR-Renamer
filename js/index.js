@@ -54,7 +54,7 @@ chrome.storage.local.get(['just_installed'], (res) => {
 console.log("JS Loaded");
 console.log(location.pathname)
 // index.html JS
-if (location.pathname === "/config.html") {
+if (location.pathname === "/index.html") {
     // const BtnContainer = document.getElementById('lower');
     // const expForURL = new RegExp("classroom\\.google\\.com/u/\\d+"); // TODO : Add support for classroom.google.com
     create_lists().then(() => {

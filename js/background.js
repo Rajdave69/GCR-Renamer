@@ -7,7 +7,7 @@ chrome.runtime.onInstalled.addListener(async () => {
          This below code sets default values to the storage (if empty), on install.
     */
 
-    let url = chrome.runtime.getURL("config.html");
+    let url = chrome.runtime.getURL("index.html");
     let tab = await chrome.tabs.create({url});
     console.log(`Created tab ${tab.id}`);
 

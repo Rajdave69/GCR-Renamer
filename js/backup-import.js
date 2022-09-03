@@ -11,6 +11,6 @@ chrome.storage.sync.get(['backup'], (result) => {
     } else {
         console.error("No backup found");
     }
-    location.pathname = "/config.html";
+    location.pathname = "/index.html";
 });
 
