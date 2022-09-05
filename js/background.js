@@ -33,7 +33,7 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 
 
 chrome.action.onClicked.addListener(function() {
-    let url = chrome.runtime.getURL("config.html");
+    let url = chrome.runtime.getURL("index.html");
     let tab = chrome.tabs.create({ url });
     console.log(`Created tab ${tab.id}`);
     console.log("I was clicked");
