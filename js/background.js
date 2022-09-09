@@ -16,13 +16,11 @@ Storage Structure
  */
 
 chrome.runtime.onInstalled.addListener(async () => {
-
     /*
          >> First time installation functions
 
          This below code sets default values to the storage (if empty), on install.
     */
-
     let url = chrome.runtime.getURL("index.html");
     let tab = await chrome.tabs.create({url});
     console.log(`Created tab ${tab.id}`);

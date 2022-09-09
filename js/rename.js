@@ -23,6 +23,7 @@ Section Text-Box => YVvGBb
 let acc_number = location.pathname.substring(3).substring(0, location.pathname.substring(3).indexOf("/"));
 console.log(`Signed in Google Account number is ${acc_number}`);
 
+console.log(location)
 
 get_from_local('class_list').then( (result) => {    // Get GCR subject and section info
     console.log(result);
@@ -102,42 +103,26 @@ function get_from_local(data_type) {
     });
 }
 
-    /*
-    get_info().then((result) => {   // After getting user info from storage...
-    console.log(`Userinfo ${JSON.stringify(result)}`);
 
-    if (result['default_account'] == null) {    // If no default account is set
-        console.log(`Default account is not set`);
-    }
-
-    else {  // If default account is set...
-        if (acc_number == result['default_account']) {  // If default account is the account signed into
-            console.log("Already on default account: Current Account number is same as default_account number");
-        }
-        else if (result['default_account'] < 0) {
-            console.log("default account is set to be under 0. Skipping redirect")
-        }
-        else {  // If default account is not the account signed into
-            console.log("Not on default account: Current Account number is different from default_account number");
-            location = `https://classroom.google.com/u/${result['default_account']}/h`; // TODO: make it redirect to actual path
-        }
-    }
-
-    }).then (    // After getting the user-info and checking if it's the default account...
-    */
 get_from_local('gcr_redirection').then(res => {
     if (res) {
         get_from_local('gcr_id').then(r => {
             console.log(r);
             if (r > -1) {
                 // get current account number from location
-                let acc_number = location.pathname.substring(3).substring(0, location.pathname.substring(3).indexOf("/"));
+                let acc_number = location.pathname.charAt(3);
+                if (isNaN(parseInt(acc_number))) {
+                    console.log(acc_number);
+                    acc_number = 0;
+                }
                 console.log(`Signed in Google Account number is ${acc_number}`);
                 if (!isNaN(parseInt(acc_number))) { // If account number is a number
                     if (parseInt(r) !== parseInt(acc_number)) {
                         console.log(`r: ${r} | acc_number: ${acc_number}`);
                         console.log(`Redirecting to account ${r}`);
-                        location = `https://classroom.google.com/u/${r}/h`;
+                        let thing = location.pathname.substring(4);
+                        location = `https://classroom.google.com/u/${r}${thing}`;
+
                     } else {
                         console.log(`Already on account ${r}`);
                     }
