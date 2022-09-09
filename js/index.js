@@ -2,11 +2,17 @@
 Storage Structure
 
  │
- ├─► info  dict: {"default_account": int} ─► Stores the auth-user which has renaming activated.
+ ├─► class_list    dict: {"subject_names": list, "section_names": list} ─► Stores the actual class list of the Subject and Section names which will be used to rename from.
  │
- ├─► class_list    dict: {"class_list": {"subject_names": list, "section_names": list}} ─► Stores the actual list of Subject and Section names which will be used to rename.
+ ├─► ignore_sections    boolean: Stores a boolean value which controls if section names should be ignored while renaming.
  │
- └─► ignore-rules boolean ─► Stores a boolean value which controls if section names should be ignored or not
+ ├─► gcr_redirection    boolean: Stores a boolean value which controls if the extension should redirect the user to the correct user id on GCR tabs with user id which doesn't match storage.
+ │
+ ├─► gcr_url    int: Stores the actual google account user-id
+ │
+ ├─► just_installed     boolean: Stores a boolean value which indicates if the extension was just installed. It will be true only upon installation/update.
+ │
+ └─► backup    dict: Stores all user data together
  */
 
 

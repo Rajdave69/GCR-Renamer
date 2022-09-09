@@ -1,3 +1,19 @@
+/*
+Storage Structure
+
+ │
+ ├─► class_list    dict: {"subject_names": list, "section_names": list} ─► Stores the actual class list of the Subject and Section names which will be used to rename from.
+ │
+ ├─► ignore_sections    boolean: Stores a boolean value which controls if section names should be ignored while renaming.
+ │
+ ├─► gcr_redirection    boolean: Stores a boolean value which controls if the extension should redirect the user to the correct user id on GCR tabs with user id which doesn't match storage.
+ │
+ ├─► gcr_url    int: Stores the actual google account user-id
+ │
+ ├─► just_installed     boolean: Stores a boolean value which indicates if the extension was just installed. It will be true only upon installation/update.
+ │
+ └─► backup    dict: Stores all user data together
+ */
 
 chrome.runtime.onInstalled.addListener(async () => {
 
@@ -62,9 +78,9 @@ function set_default_values() {
             }
         });
 
-        chrome.storage.local.get(['ignore_rules']).then((result) => {
-            if (result['ignore_rules'] === undefined) {
-                chrome.storage.local.set({'ignore_rules': false});
+        chrome.storage.local.get(['ignore_sections']).then((result) => {
+            if (result['ignore_sections'] === undefined) {
+                chrome.storage.local.set({'ignore_sections': false});
             }
         }).catch((e) => {
             console.log(e);
