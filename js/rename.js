@@ -52,12 +52,14 @@ get_from_local('class_list').then( (result) => {    // Get GCR subject and secti
             if (res) {
                 setInterval(() => {   // Check every second
                     renameSubject(subject_list);
+                    renameSidebar(subject_list, [], true);
                     }, 1000);
 
             } else {
                 setInterval(() => {   // Check every second
                     renameSubject(subject_list);
                     renameSection(section_list);
+                    renameSidebar(subject_list, section_list, false);
                     }, 1000);
 
             }
@@ -83,6 +85,22 @@ function renameSection(section_list) {
     }
 }
 
+function renameSidebar(subject_list, section_list, ignore_sections) {
+    let sidebar = GetElementsByExactClassName("nhassd asQXV YVvGBb");
+    for (let i = 0; i < sidebar.length; i++) {
+        // if it's the first 3 elements or the last 2, skip
+        if (i < 3 || i > sidebar.length - 3) {
+            continue;
+        }
+        sidebar[i].innerText = subject_list[i-3];
+    }
+    if (!ignore_sections) {
+        let sidebar_section = GetElementsByExactClassName("TajIHf dDKhVc YVvGBb");
+        for (let i = 0; i < sidebar_section.length; i++) {
+            sidebar_section[i].innerText = section_list[i];
+        }
+    }
+}
 
 
 // Finds all elements with only given exact class name.
@@ -137,3 +155,4 @@ get_from_local('gcr_redirection').then(res => {
     }
 
 })
+
