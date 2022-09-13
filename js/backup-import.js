@@ -25,7 +25,7 @@ chrome.storage.sync.get(['backup'], (result) => {
         chrome.storage.local.set({'backup': result['backup']});
         chrome.storage.local.set({'class_list': {"subject_names": result['backup']['subject_names'], "section_names": result['backup']['section_names']}});
         chrome.storage.local.set({'ignore_sections': result['backup']['ignore_sections']});
-        chrome.storage.local.set({'gcr_url': result['backup']['gcr_url']});
+        chrome.storage.local.set({'gcr_id': result['backup']['gcr_id']});
         chrome.storage.local.set({'gcr_redirection': result['backup']['gcr_redirection']});
 
     } else {

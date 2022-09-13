@@ -30,8 +30,11 @@ get_from_local('ignore_sections').then( (res) => {
 get_from_local('gcr_redirection').then( (res) => {
     gcr_redirection_toggle.checked = !!res;
 })
-get_from_local('gcr_url').then( (res) => {
-    gcr_url_input.value = `classroom.google.com/u/${res}/h`;
+get_from_local('gcr_id').then( (res) => {
+    console.debug(res);
+    if (!isNaN(parseInt(res))) {
+        gcr_url_input.value = `classroom.google.com/u/${res}/h`;
+    }
 })
 
 
@@ -123,8 +126,8 @@ function export_to_json() {
             let temp_json = result;
             get_from_local('ignore_sections').then((ignore_sections) => {
                 temp_json['ignore_sections'] = ignore_sections;
-                get_from_local('gcr_url').then( (id) => {
-                    temp_json['gcr_url'] = id;
+                get_from_local('gcr_id').then( (id) => {
+                    temp_json['gcr_id'] = id;
                     get_from_local('gcr_redirection').then( (redirection) => {
                         temp_json['gcr_redirection'] = redirection;
                         store_to_cloud({'backup': temp_json}).then(() => {
@@ -165,7 +168,7 @@ function import_from_json() {
                     console.log("done setting class list");
                     store_to_local('ignore_sections', data['ignore_sections']).then(() => {
                         console.log("done setting ignore rules");
-                        store_to_local('gcr_url', data['gcr_url']).then(() => {
+                        store_to_local('gcr_id', data['gcr_id']).then(() => {
                             console.log("done setting account id");
                             store_to_local('gcr_redirection', data['gcr_redirection']).then(() => {
                                 console.log("done setting gcr redirection");
