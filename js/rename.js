@@ -8,7 +8,7 @@ Storage Structure
  │
  ├─► gcr_redirection    boolean: Stores a boolean value which controls if the extension should redirect the user to the correct user id on GCR tabs with user id which doesn't match storage.
  │
- ├─► gcr_url    int: Stores the actual google account user-id
+ ├─► gcr_id    int: Stores the actual google account user-id
  │
  ├─► just_installed     boolean: Stores a boolean value which indicates if the extension was just installed. It will be true only upon installation/update.
  │
@@ -25,53 +25,100 @@ console.log(`Signed in Google Account number is ${acc_number}`);
 
 console.log(location)
 
-get_from_local('class_list').then( (result) => {    // Get GCR subject and section info
-    console.log(result);
+if (location.pathname === `/u/${acc_number}/h` || location.pathname === "/h") { // If the user is on the home page
 
-    const subject_list = result["subject_names"]; // Get the list of subjects for the account signed into
-    const section_list = result["section_names"]; // Get the list of sections for the account signed into
-    console.log(subject_list, section_list);
+    console.debug("Home Page");
+    get_from_local('class_list').then((result) => {    // Get GCR subject and section info
+        console.log(result);
 
-    //const found_subjects = document.getElementsByClassName("z3vRcc-ZoZQ1"); // Get the list of subjects in the page
+        const subject_list = result["subject_names"]; // Get the list of subjects for the account signed into
+        const section_list = result["section_names"]; // Get the list of sections for the account signed into
+        console.log(subject_list, section_list);
 
-    // check if subject list and section list are empty
-    if (subject_list === undefined) {
-        console.log("Subject list is empty");
-    }
-    else if (subject_list.length < 1) {   // If subject list or section list is empty
-        console.log("Subject or section list is empty");
-    }
+        //const found_subjects = document.getElementsByClassName("z3vRcc-ZoZQ1"); // Get the list of subjects in the page
 
-
-
-
-    else {  // If subject list or section list is not empty
-        get_from_local('ignore_sections').then( (res) => {
-            console.debug(res);
-            console.log("Ignoring Sections. Config says so.")
-            if (res) {
-                setInterval(() => {   // Check every second
-                    renameSubject(subject_list);
-                    renameSidebar(subject_list, [], true);
+        // check if subject list and section list are empty
+        if (subject_list === undefined) {
+            console.log("Subject list is empty");
+        } else if (subject_list.length < 1) {   // If subject list or section list is empty
+            console.log("Subject or section list is empty");
+        } else {  // If subject list or section list is not empty
+            get_from_local('ignore_sections').then((res) => {
+                console.debug(res);
+                if (res) {
+                    console.log("Ignoring Sections. Config says so.")
+                    setInterval(() => {   // Check every second
+                        renameSubject(subject_list);
+                        renameSidebar(subject_list, [], true);
                     }, 1000);
 
-            } else {
-                setInterval(() => {   // Check every second
-                    renameSubject(subject_list);
-                    renameSection(section_list);
-                    renameSidebar(subject_list, section_list, false);
+                } else {
+                    setInterval(() => {   // Check every second
+                        renameSubject(subject_list);
+                        renameSection(section_list);
+                        renameSidebar(subject_list, section_list, false);
                     }, 1000);
 
-            }
-        });
-    }
+                }
+            });
+        }
 
-});
+    });
+
+}
+
+else if (location.pathname === `/u/${acc_number}/s` || location.pathname === "/s") {
+    console.debug("Settings Page");
+    get_from_local('class_list').then((result) => {    // Get GCR subject and section info
+
+        const subject_list = result["subject_names"]; // Get the list of subjects for the account signed into
+        const section_list = result["section_names"]; // Get the list of sections for the account signed into
+
+        // check if subject list and section list are empty
+        if (subject_list === undefined) {
+            console.log("Subject list is empty");
+        } else if (subject_list.length < 1) {   // If subject list or section list is empty
+            console.log("Subject or section list is empty");
+        } else {  // If subject list or section list is not empty
+            get_from_local('ignore_sections').then((res) => {
+                console.debug(res);
+
+                if (res) {
+                    console.log("Ignoring Sections. Config says so.")
+                    setInterval(() => {   // Check every second
+                        renameSettingsPage(subject_list, [], true);
+                    }, 10000);
+
+                } else {
+                    setInterval(() => {   // Check every second
+                        renameSettingsPage(subject_list, section_list, false);
+                    }, 10000);
+
+                }
+            });
+        }
+
+    });
+}
+
+
+function renameSettingsPage(subject_list, section_list, ignore_sections) {
+    const found_subjects = GetElementsByExactClassName("PtHAPb asQXV"); // Get the list of subjects in the page
+    for (let i = 0; i < found_subjects.length; i++) {
+        found_subjects[i].innerText = subject_list[i];
+    }
+    if (!ignore_sections) {
+        const found_sections = GetElementsByExactClassName("cSyPgb"); // Get the list of sections in the page
+        for (let i = 0; i < found_sections.length; i++) {
+            found_sections[i].innerText = section_list[i];
+        }
+    }
+}
 
 
 // Renames the Subject Text-Box
 function renameSubject(subject_list) {
-    let subject = document.getElementsByClassName("z3vRcc-ZoZQ1");  // Find the elements
+    const subject = document.getElementsByClassName("z3vRcc-ZoZQ1");  // Find the elements
     for (let i = 0; i < subject.length; i++) {    // For each subject element, change it
     subject[i].innerText = subject_list[i];        // Change the content
     }
@@ -79,14 +126,14 @@ function renameSubject(subject_list) {
 
 // Renames the Section Text-Box
 function renameSection(section_list) {
-    let section = GetElementsByExactClassName("YVvGBb");
+    const section = GetElementsByExactClassName("YVvGBb");
     for (let i = 1; i < section.length; i++) {    //Find The Element(s)
      section[i].innerText = section_list[i];    // Change the content
     }
 }
 
 function renameSidebar(subject_list, section_list, ignore_sections) {
-    let sidebar = GetElementsByExactClassName("nhassd asQXV YVvGBb");
+    const sidebar = GetElementsByExactClassName("nhassd asQXV YVvGBb");
     for (let i = 0; i < sidebar.length; i++) {
         // if it's the first 3 elements or the last 2, skip
         if (i < 3 || i > sidebar.length - 3) {
