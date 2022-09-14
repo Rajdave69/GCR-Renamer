@@ -25,17 +25,16 @@ console.log(`Signed in Google Account number is ${acc_number}`);
 
 console.log(location)
 
-if (location.pathname === `/u/${acc_number}/h` || location.pathname === "/h") { // If the user is on the home page
 
-    console.debug("Home Page");
+if (location.pathname === `/u/${acc_number}/h` || location.pathname === "/h" || location.pathname.startsWith(`/u/${acc_number}/c/`)) { // If the user is on the home page
+
+    console.debug("Home Page or class");
     get_from_local('class_list').then((result) => {    // Get GCR subject and section info
         console.log(result);
 
         const subject_list = result["subject_names"]; // Get the list of subjects for the account signed into
         const section_list = result["section_names"]; // Get the list of sections for the account signed into
         console.log(subject_list, section_list);
-
-        //const found_subjects = document.getElementsByClassName("z3vRcc-ZoZQ1"); // Get the list of subjects in the page
 
         // check if subject list and section list are empty
         if (subject_list === undefined) {
