@@ -49,14 +49,12 @@ if (location.pathname === `/u/${acc_number}/h` || location.pathname === "/h") { 
                     console.log("Ignoring Sections. Config says so.")
                     setInterval(() => {   // Check every second
                         renameSubject(subject_list);
-                        renameSidebar(subject_list, [], true);
                     }, 1000);
 
                 } else {
                     setInterval(() => {   // Check every second
                         renameSubject(subject_list);
                         renameSection(section_list);
-                        renameSidebar(subject_list, section_list, false);
                     }, 1000);
 
                 }
@@ -80,24 +78,15 @@ else if (location.pathname === `/u/${acc_number}/s` || location.pathname === "/s
         } else if (subject_list.length < 1) {   // If subject list or section list is empty
             console.log("Subject or section list is empty");
         } else {  // If subject list or section list is not empty
-            get_from_local('ignore_sections').then((res) => {
+            get_from_local('ignore_sections').then( (res) => {
                 console.debug(res);
 
-                if (res) {
-                    console.log("Ignoring Sections. Config says so.")
-                    setInterval(() => {   // Check every second
-                        renameSettingsPage(subject_list, [], true);
-                    }, 10000);
+                setInterval(() => {   // Check every second
+                    renameSettingsPage(subject_list, section_list, res);
+                }, 1000);
 
-                } else {
-                    setInterval(() => {   // Check every second
-                        renameSettingsPage(subject_list, section_list, false);
-                    }, 10000);
-
-                }
             });
         }
-
     });
 }
 
@@ -203,3 +192,28 @@ get_from_local('gcr_redirection').then(res => {
 
 })
 
+
+const sidebar_button = GetElementsByExactClassName("VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ mN1ivc xSP5ic oxacD");
+
+sidebar_button[0].addEventListener("click", () => {
+    console.log("Sidebar button clicked");
+    get_from_local('class_list').then((result) => {    // Get GCR subject and section info
+
+        const subject_list = result["subject_names"]; // Get the list of subjects for the account signed into
+        const section_list = result["section_names"]; // Get the list of sections for the account signed into
+
+        if (subject_list === undefined) {
+            console.log("Subject list is empty");
+        } else if (subject_list.length < 1) {   // If subject list or section list is empty
+            console.log("Subject or section list is empty");
+        } else {  // If subject list or section list is not empty
+            get_from_local('ignore_sections').then( (res) => {
+
+                setInterval(() => {   // Check every second
+                    renameSidebar(subject_list, section_list, res);
+                }, 250);
+
+            });
+        }
+    });
+});
