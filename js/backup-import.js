@@ -22,11 +22,14 @@ chrome.storage.sync.get(['backup'], (result) => {
         console.debug("it is not undefined")
         console.debug(result['backup']['default_account'], result['backup']['subject_names'], result['backup']['section_names'], result['backup']['ignore_sections'], result['backup']['default_account']);
 
-        chrome.storage.local.set({'backup': result['backup']});
-        chrome.storage.local.set({'class_list': {"subject_names": result['backup']['subject_names'], "section_names": result['backup']['section_names']}});
-        chrome.storage.local.set({'ignore_sections': result['backup']['ignore_sections']});
-        chrome.storage.local.set({'gcr_id': result['backup']['gcr_id']});
-        chrome.storage.local.set({'gcr_redirection': result['backup']['gcr_redirection']});
+        chrome.storage.local.set(
+            {'class_list': {"subject_names": result['backup']['subject_names'], "section_names": result['backup']['section_names']}},
+            {'ignore_sections': result['backup']['ignore_sections']},
+            {'gcr_id': result['backup']['gcr_id']},
+            {'gcr_redirection': result['backup']['gcr_redirection']},
+            );
+
+        console.debug("backup imported")
 
     } else {
         console.error("No backup found");
