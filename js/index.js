@@ -8,7 +8,7 @@ Storage Structure
  │
  ├─► gcr_redirection    boolean: Stores a boolean value which controls if the extension should redirect the user to the correct user id on GCR tabs with user id which doesn't match storage.
  │
- ├─► gcr_url    int: Stores the actual google account user-id
+ ├─► gcr_id    int: Stores the actual google account user-id
  │
  ├─► just_installed     boolean: Stores a boolean value which indicates if the extension was just installed. It will be true only upon installation/update.
  │
@@ -24,6 +24,18 @@ const classesAmount = document.getElementById('classes-amount');
 const subjectsArea = document.getElementById('subjects-area');
 const sectionsArea = document.getElementById('sections-area');
 const settings_page = document.getElementById('settings-page');
+const just_updated = getQueryVariable('just_updated');
+const first_install = getQueryVariable('first_install');
+
+if (just_updated === "true") {
+    console.debug("Just Updated")
+}
+if (first_install === "true") {
+    console.debug("Just Installed")
+    const check_box = document.getElementById('just_installed');
+    check_box.checked = true;
+}
+
 
 chrome.storage.local.get(['just_installed'], (res) => {
     console.debug(res)
@@ -43,7 +55,7 @@ chrome.storage.local.get(['just_installed'], (res) => {
                         if (JSON.stringify(temp_json) !== JSON.stringify(res.backup)) {
                             console.log("Current settings are different from backup.");
                             console.log(JSON.stringify(temp_json) !== JSON.stringify(res.backup));
-                            let tickbox = document.getElementById("backup_found");
+                            const tickbox = document.getElementById("backup_found");
                             tickbox.checked = true;
                         } else {
                             console.log("current settings are same as previous backup");
@@ -281,4 +293,16 @@ function get_from_local(data_type) {
         });
 
     });
+}
+
+function getQueryVariable(variable) {
+    const query = window.location.search.substring(1);
+    const vars = query.split("&");
+    for (let i=0; i < vars.length; i++) {
+        let pair = vars[i].split("=");
+        if (pair[0] === variable) {
+            return pair[1];
+        }
+    }
+    return false;
 }
