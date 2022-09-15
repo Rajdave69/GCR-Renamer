@@ -23,6 +23,7 @@ const ignore_section_toggle = document.getElementById('ignore-sections');
 const back_button = document.getElementById('main-page');
 const gcr_url_input = document.getElementById('user-id-input');
 const gcr_redirection_toggle = document.getElementById('gcr-redirection');
+const min_config_version = 1;
 
 get_from_local('ignore_sections').then( (res) => {
     ignore_section_toggle.checked = !!res;
@@ -131,10 +132,13 @@ function export_to_json() {
                     get_from_local('gcr_redirection').then( (redirection) => {
                         temp_json['gcr_redirection'] = redirection;
                         store_to_cloud({'backup': temp_json}).then(() => {
-                            let json = JSON.stringify(temp_json);
-                            let blob = new Blob([json], {type: "application/json"});
-                            let url = URL.createObjectURL(blob);
-                            let a = document.createElement("a");
+                            temp_json['config_version'] = 1;
+
+                            const json = JSON.stringify(temp_json);
+                            const blob = new Blob([json], {type: "application/json"});
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+
                             a.href = url;
                             a.download = "gcr_class_list.json";
                             document.body.appendChild(a);
@@ -178,6 +182,17 @@ function import_from_json() {
                         });
                     });
                 });
+                console.log(data['config_version'])
+                if (data['config_version'] === undefined) {
+                    show_config_version_error("The config file does not contain a config version. Please update the config file to the latest version. I am trying to import the config file anyways though, but it may not work. Consider exporting the settings again");
+
+                } else if (data['config_version'] < min_config_version) {
+                    show_config_version_error(`The configuration's version is too old (${data['config_version']}, which is smaller than the required ${min_config_version}), But I'm trying to import it anyway. You are recommended to export the configuration again.`);
+
+                } else {
+                    console.debug("No config version issues.")
+                }
+
             };
             reader.readAsText(file);
         });
@@ -210,5 +225,15 @@ function store_to_cloud(data) {
     });
 }
 
+function show_config_version_error(text) {
+
+    const tick_box = document.getElementById('config_version_error');
+    const error_p = document.getElementById('config_v_error_p');
+
+    error_p.innerText = text;
+
+    tick_box.checked = true;
+
+}
 
 
