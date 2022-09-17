@@ -80,12 +80,38 @@ else if (location.pathname === `/u/${acc_number}/s` || location.pathname === "/s
 
                 setInterval(() => {   // Check every second
                     renameSettingsPage(subject_list, section_list, res);
-                }, 1000);
+                }, 250);
 
             });
         }
     });
 }
+/*
+else if (location.pathname.startsWith(`/u/${acc_number}/a`) || location.pathname.startsWith(`/a`)) {
+    console.debug("Assignment Page");
+        get_from_local('class_list').then((result) => {    // Get GCR subject and section info
+
+        const subject_list = result["subject_names"]; // Get the list of subjects for the account signed into
+        // check if subject list and section list are empty
+        if (subject_list === undefined) {
+            console.log("Subject list is empty");
+        } else if (subject_list.length < 1) {   // If subject list or section list is empty
+            console.log("Subject or section list is empty");
+        } else {  // If subject list or section list is not empty
+            get_from_local('ignore_sections').then( (res) => {
+                console.debug(res);
+
+                setInterval(() => {   // Check every second
+                    renameSectionList(subject_list);
+                }, 250);
+
+            });
+        }
+    });
+
+}
+
+ */
 
 
 function renameSettingsPage(subject_list, section_list, ignore_sections) {
@@ -134,6 +160,16 @@ function renameSidebar(subject_list, section_list, ignore_sections) {
         }
     }
 }
+/*
+function renameSectionList(subject_list) {
+    const section_list_element = GetElementsByExactClassName("MCs1Pd HiC7Nc VfPpkd-OkbHre VfPpkd-aJasdd-RWgCYc-wQNmvb VfPpkd-rymPhb-ibnC6b VfPpkd-rymPhb-ibnC6b-OWXEXe-SfQLQb-Woal0c-RWgCYc");
+
+    for (let i = 0; i < section_list_element.length; i++) {
+        section_list_element[i].innerText = subject_list[i];
+    }
+}
+
+ */
 
 
 // Finds all elements with only given exact class name.
@@ -153,6 +189,8 @@ function get_from_local(data_type) {
 
     });
 }
+
+
 
 
 get_from_local('gcr_redirection').then(res => {
@@ -214,3 +252,15 @@ sidebar_button[0].addEventListener("click", () => {
         }
     });
 });
+
+/*
+// get list element from jsname
+
+const list_element = document.getElementsByClassName('VfPpkd-TkwUic')
+
+// print contents of list element
+
+console.log(list_element);
+
+
+ */
