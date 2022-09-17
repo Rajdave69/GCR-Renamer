@@ -59,9 +59,7 @@ if (location.pathname === `/u/${acc_number}/h` || location.pathname === "/h" || 
                 }
             });
         }
-
     });
-
 }
 
 else if (location.pathname === `/u/${acc_number}/s` || location.pathname === "/s") {
