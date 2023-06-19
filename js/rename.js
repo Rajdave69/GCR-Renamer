@@ -214,23 +214,69 @@ function renameClassPage() {
 }
 
 function renameClassHeader() {
-  getClassHeaderObject().then((elements) => {
-    console.log(elements);
-    const class_id = (elements.href).match(CLASSID_REGEX)?.[1];
+  console.debug("Renaming class header");
+
+  getClassHeaderObject().then((element) => {
+    console.log(element);
+    const class_id = (element.href).match(CLASSID_REGEX)?.[1];
+
+    const hasSection = element.children.length === 2;
+
+    const subjectElement = element.children[SUBJECT_INDEX];
+    const sectionElement = element.children[SECTION_INDEX] || "";
+
+    console.log(element.children)
+
+    console.log(subjectElement, sectionElement)
 
     chrome.storage.sync.get((result) => {
-      const classdetails = result[class_id]
+      const classdetails = result[class_id];
 
-      // elements has two span elements as children
-      elements.children[0].innerText = classdetails.subject;
-      elements.children[1].innerText = classdetails.section;
       console.log(classdetails);
 
-      // run a f
+      console.log("Class header changed");
+      // elements has two span elements as children
 
+      const revertChanges = () => {
+        if (subjectElement.innerText !== classdetails.subject) {
+          subjectElement.innerText = classdetails.subject;
+        }
+        if (hasSection !== undefined) {
+          if (sectionElement.innerText !== classdetails.section) {
+            sectionElement.innerText = classdetails.section;
+          }
+        }
+      };
+
+      const checkChanges = () => {
+        console.debug("Checking for changes");
+        if (subjectElement.innerText !== classdetails.subject) {
+          console.log("Changes detected")
+          // Changes detected, revert them back
+          revertChanges();
+
+        }
+
+        if (document.location.pathname.match(ASSIGNMENT_REGEX) || document.location.pathname.match(CLASS_REGEX)) {
+          console.log("Stopping interval");
+          clearInterval(intervalId);
+        }
+
+      };
+
+      const intervalId = setInterval(checkChanges, 2000); // Check every second
+
+      // Update the initial values
+      subjectElement.innerText = classdetails.subject;
+      if (hasSection !== undefined) sectionElement.innerText = classdetails.section;
+
+      // Cleanup the interval when needed
+      // For example, clearInterval(intervalId) when you want to stop monitoring the changes
     });
   });
 }
+
+
 
 
 
