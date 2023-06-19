@@ -21,17 +21,46 @@ Data structure:
  */
 
 // The classes of the `a` tag which make up a GCR class's names
-const CLASS_NAME = "onkcGd eDfb1d YVvGBb Vx8Sxd";
+const CLASSBOX_HOMEPAGE = "onkcGd eDfb1d YVvGBb Vx8Sxd";
+const CLASSBOX_CLASSPAGE = "T4tcpe PagUde";
 const SECTION_INDEX = 1;
 const SUBJECT_INDEX = 0;
+const CLASSBOX_HEADER = "onkcGd OGhwGf";
+
 // regex which matches /u/{number}/h or /h (GCR home page)
 const HOME_REGEX = /^\/u\/(\d+)\/h$|^\/h$/;
+// regex which matches /u/{number}/c/{string} or /c/{string} (GCR class page)
+const CLASS_REGEX = /^\/u\/(\d+)\/c\/([a-zA-Z0-9]+)$|^\/c\/([a-zA-Z0-9]+)$/;
+// regex which  matches /u/{number/c/{string}/a/{string}/details or /c/{string}/a/{string}/details (GCR assignment page)
+const ASSIGNMENT_REGEX = /^\/u\/(\d+)\/c\/([a-zA-Z0-9]+)\/a\/([a-zA-Z0-9]+)\/details$|^\/c\/([a-zA-Z0-9]+)\/a\/([a-zA-Z0-9]+)\/details$/;
+
+const CLASSID_REGEX = /c\/(.+?)(\/|$)/;
 
 // If home page is opened
 if (document.location.pathname.match(HOME_REGEX)) {
   console.log("Home page");
   window.addEventListener("load", renameHomeClasses);
 }
+
+// If class page is opened
+else if (document.location.pathname.match(CLASS_REGEX)) {
+
+  console.log("Class page");
+
+  window.addEventListener("load", () => {
+    renameClassPage();
+    renameClassHeader();
+
+  });
+
+}
+
+// If assignment page is opened
+else if (document.location.pathname.match(ASSIGNMENT_REGEX)) {
+  console.log("Assignment page");
+  window.addEventListener("load", renameClassHeader);
+}
+
 
 //
 //
