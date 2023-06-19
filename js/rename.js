@@ -64,6 +64,53 @@ else if (document.location.pathname.match(ASSIGNMENT_REGEX)) {
 
 //
 //
+//  >> Observers <<
+//
+//
+
+
+let oldPathname = document.location.pathname;
+let oldInnerText = "";
+
+// Create a MutationObserver instance
+const pathObserver = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.type === 'attributes' && mutation.attributeName === 'href') {
+      // Perform actions based on the new pathname
+      if (document.location.pathname !== oldPathname) {
+        oldPathname = document.location.pathname;
+        console.log("Pathname changed");
+
+        if (document.location.pathname.match(HOME_REGEX)) {
+          console.log("Home page");
+          renameHomeClasses();
+
+        } else if (document.location.pathname.match(CLASS_REGEX)) {
+          console.log("Class page");
+          renameClassPage();
+          renameClassHeader();
+        } else if (document.location.pathname.match(ASSIGNMENT_REGEX)) {
+          console.log("Assignment page");
+          renameClassHeader();
+        }
+      }
+
+    }
+  });
+});
+
+// Start observing the document for changes in attributes
+pathObserver.observe(document, {
+  attributes: true,
+  subtree: true,
+  attributeFilter: ['href']
+});
+
+
+
+
+//
+//
 //  >> Renaming System <<
 //
 //
