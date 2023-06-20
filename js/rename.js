@@ -109,6 +109,8 @@ pathObserver.observe(document, {
 
 
 
+
+
 //
 //
 //  >> Renaming System <<
@@ -158,6 +160,7 @@ function renameHomeClasses() {
 
         // get the classes
         const classes = result;
+        console.log(result)
 
         // loop through the classes
         for (let i = 0; i < elements.length; i++) {
@@ -176,30 +179,41 @@ function renameHomeClasses() {
           // div[0] is the subject div, div[1] is the section div
           divs[SUBJECT_INDEX].innerText = classes[class_id].subject;
           divs[SECTION_INDEX].innerText = classes[class_id].section;
+
+          // keep checking every second for change in elements[1].innerText
+          // if it changes, then rerun the function
+
+          const IntervalId = setInterval(() => {
+            const divs = elements[0].getElementsByTagName("div");
+            const id = elements[0].href.split("/").pop();
+
+            if (divs[SUBJECT_INDEX].innerText !== classes[id].subject) {
+              renameHomeClasses();
+            }
+            if ((document.location.pathname).match(HOME_REGEX) === null) {
+              clearInterval(IntervalId);
+            }
+          }, 2000);
+
         }
       }
     });
 
   });
-  /*
-     .then(() => {
-         pathObserver.observe(document.body, {
-         childList: true,
-         subtree: true,
-         });
-     });
-     */
 }
 
 
+
 function renameClassPage() {
+  console.debug("Renaming class page")
+
   // get sync storage
   chrome.storage.sync.get((result) => {
     // get the classes
     const classes = result;
 
     // Get the class id from the url
-    const class_id = document.location.pathname.split("/").pop();
+    const class_id = (document.location.pathname).match(CLASSID_REGEX)?.[1];
 
     // If the class doesn't have a section or subject defined in storage, skip it
     if (classes[class_id] === undefined) {
