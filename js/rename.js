@@ -27,8 +27,8 @@ const SECTION_INDEX = 1;
 const SUBJECT_INDEX = 0;
 const CLASSBOX_HEADER = "onkcGd OGhwGf";
 
-// regex which matches /u/{number}/h or /h (GCR home page)
-const HOME_REGEX = /^\/u\/(\d+)\/h$|^\/h$/;
+// regex which matches /u/{number}/h or /h with optional `/` in the end (GCR home page)
+const HOME_REGEX = /^\/((u\/\d+\/h)|u\/1|h)\/?$/;
 // regex which matches /u/{number}/c/{string} or /c/{string} (GCR class page)
 const CLASS_REGEX = /^\/u\/(\d+)\/c\/([a-zA-Z0-9]+)$|^\/c\/([a-zA-Z0-9]+)$/;
 // regex which  matches /u/{number/c/{string}/a/{string}/details or /c/{string}/a/{string}/details (GCR assignment page)
@@ -37,7 +37,10 @@ const ASSIGNMENT_REGEX = /^\/u\/(\d+)\/c\/([a-zA-Z0-9]+)\/a\/([a-zA-Z0-9]+)\/det
 const CLASSID_REGEX = /c\/(.+?)(\/|$)/;
 
 // If home page is opened
-if (document.location.pathname.match(HOME_REGEX)) {
+if (
+    document.location.pathname.match(HOME_REGEX) || // If it is /u/{number}/h
+    document.location.pathname === "/"
+) {
   console.log("Home page");
   window.addEventListener("load", renameHomeClasses);
 }
