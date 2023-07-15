@@ -36,13 +36,15 @@ const ASSIGNMENT_REGEX = /^\/u\/(\d+)\/c\/([a-zA-Z0-9]+)\/a\/([a-zA-Z0-9]+)\/det
 
 const CLASSID_REGEX = /c\/(.+?)(\/|$)/;
 
+console.log("GCR Class Renamer");
+
 // If home page is opened
 if (
     document.location.pathname.match(HOME_REGEX) || // If it is /u/{number}/h
     document.location.pathname === "/"
 ) {
   console.log("Home page");
-  window.addEventListener("load", renameHomeClasses);
+  window.addEventListener("load", renameHomePage);
 }
 
 // If class page is opened
@@ -75,7 +77,7 @@ else if (document.location.pathname.match(ASSIGNMENT_REGEX)) {
 let oldPathname = document.location.pathname;
 let oldInnerText = "";
 
-// Create a MutationObserver instance
+// Mutation Observer for path change
 const pathObserver = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === 'attributes' && mutation.attributeName === 'href') {
@@ -86,7 +88,7 @@ const pathObserver = new MutationObserver((mutations) => {
 
         if (document.location.pathname.match(HOME_REGEX)) {
           console.log("Home page");
-          renameHomeClasses();
+          renameHomePage();
 
         } else if (document.location.pathname.match(CLASS_REGEX)) {
           console.log("Class page");
@@ -121,7 +123,7 @@ pathObserver.observe(document, {
 //
 
 
-function renameHomeClasses() {
+function renameHomePage() {
   getClassElementsHomePage().then((elements) => {
     // get sync storage
     chrome.storage.sync.get((result) => {
@@ -191,7 +193,7 @@ function renameHomeClasses() {
             const id = elements[0].href.split("/").pop();
 
             if (divs[SUBJECT_INDEX].innerText !== classes[id].subject) {
-              renameHomeClasses();
+              renameHomePage();
             }
             if ((document.location.pathname).match(HOME_REGEX) === null) {
               clearInterval(IntervalId);
