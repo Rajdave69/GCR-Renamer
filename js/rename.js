@@ -22,7 +22,7 @@ Data structure:
 
 // The classes of the `a` tag which make up a GCR class's names
 const CLASSBOX_HOMEPAGE = "onkcGd eDfb1d YVvGBb Vx8Sxd";
-const CLASSBOX_CLASSPAGE = "T4tcpe PagUde";
+const CLASSBOX_COURSEPAGE = "T4tcpe PagUde";
 const SECTION_INDEX = 1;
 const SUBJECT_INDEX = 0;
 const CLASSBOX_HEADER = "onkcGd OGhwGf";
@@ -30,7 +30,7 @@ const CLASSBOX_HEADER = "onkcGd OGhwGf";
 // regex which matches /u/{number}/h or /h with optional `/` in the end (GCR home page)
 const HOME_REGEX = /^\/((u\/\d+\/h)|u\/1|h)\/?$/;
 // regex which matches /u/{number}/c/{string} or /c/{string} (GCR class page)
-const CLASS_REGEX = /^\/u\/(\d+)\/c\/([a-zA-Z0-9]+)$|^\/c\/([a-zA-Z0-9]+)$/;
+const COURSE_REGEX = /^\/u\/(\d+)\/c\/([a-zA-Z0-9]+)$|^\/c\/([a-zA-Z0-9]+)$/;
 // regex which  matches /u/{number/c/{string}/a/{string}/details or /c/{string}/a/{string}/details (GCR assignment page)
 const ASSIGNMENT_REGEX = /^\/u\/(\d+)\/c\/([a-zA-Z0-9]+)\/a\/([a-zA-Z0-9]+)\/details$|^\/c\/([a-zA-Z0-9]+)\/a\/([a-zA-Z0-9]+)\/details$/;
 
@@ -47,23 +47,21 @@ if (
   window.addEventListener("load", renameHomePage);
 }
 
-// If class page is opened
-else if (document.location.pathname.match(CLASS_REGEX)) {
-
-  console.log("Class page");
+// If a course page is opened
+else if (document.location.pathname.match(COURSE_REGEX)) {
+  console.log("Course page");
 
   window.addEventListener("load", () => {
-    renameClassPage();
-    renameClassHeader();
+    renameCoursePage();
+    renameCourseHeader();
 
   });
-
 }
 
 // If assignment page is opened
 else if (document.location.pathname.match(ASSIGNMENT_REGEX)) {
   console.log("Assignment page");
-  window.addEventListener("load", renameClassHeader);
+  window.addEventListener("load", renameCourseHeader);
 }
 
 
@@ -81,22 +79,26 @@ let oldInnerText = "";
 const pathObserver = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === 'attributes' && mutation.attributeName === 'href') {
-      // Perform actions based on the new pathname
+      // If the path has changed
       if (document.location.pathname !== oldPathname) {
         oldPathname = document.location.pathname;
         console.log("Pathname changed");
 
+        // If home page is opened
         if (document.location.pathname.match(HOME_REGEX)) {
           console.log("Home page");
           renameHomePage();
 
-        } else if (document.location.pathname.match(CLASS_REGEX)) {
+          // if a course's page is opened
+        } else if (document.location.pathname.match(COURSE_REGEX)) {
           console.log("Class page");
-          renameClassPage();
-          renameClassHeader();
+          renameCoursePage();
+          renameCourseHeader();
+
+          // if an assignment's page is opened
         } else if (document.location.pathname.match(ASSIGNMENT_REGEX)) {
           console.log("Assignment page");
-          renameClassHeader();
+          renameCourseHeader();
         }
       }
 
@@ -115,7 +117,6 @@ pathObserver.observe(document, {
 
 
 
-
 //
 //
 //  >> Renaming System <<
@@ -124,7 +125,7 @@ pathObserver.observe(document, {
 
 
 function renameHomePage() {
-  getClassElementsHomePage().then((elements) => {
+  getCourseElementsHomePage().then((elements) => {
     // get sync storage
     chrome.storage.sync.get((result) => {
 
@@ -140,7 +141,7 @@ function renameHomePage() {
         // todo tell user that storage is empty
         console.log("Storage is empty");
 
-        chrome.storage.sync.set({
+        chrome.storage.sync.set({ // todo remove this
 
           "NTk4NDQyOTI0MjAx": {
             "subject": "Main Class Group",
@@ -160,7 +161,7 @@ function renameHomePage() {
           }
         });
 
-        // if classes are found in storage
+        // if courses are found in storage
       } else {
 
         // get the classes
@@ -189,15 +190,37 @@ function renameHomePage() {
           // if it changes, then rerun the function
 
           const IntervalId = setInterval(() => {
+            if ((document.location.pathname).match(HOME_REGEX) === null) {
+              clearInterval(IntervalId);
+            }
+            if (EDITMODE) {
+              clearInterval(IntervalId);
+            }
+
             const divs = elements[0].getElementsByTagName("div");
             const id = elements[0].href.split("/").pop();
 
             if (divs[SUBJECT_INDEX].innerText !== classes[id].subject) {
               renameHomePage();
             }
-            if ((document.location.pathname).match(HOME_REGEX) === null) {
-              clearInterval(IntervalId);
-            }
+
+            // todo remove
+            // add button which does toggleEditMode() to bottom right of screen
+
+            // const button = document.createElement("button");
+            // button.innerText = "Toggle Edit Mode";
+            // button.style.position = "fixed";
+            // button.style.bottom = "0";
+            // button.style.right = "0";
+            // button.id = "potato"
+            // button.addEventListener("click", () => {
+            //   toggleEditMode();
+            // });
+            //
+            // document.body.appendChild(button);
+
+
+
           }, 2000);
 
         }
@@ -209,7 +232,7 @@ function renameHomePage() {
 
 
 
-function renameClassPage() {
+function renameCoursePage() {
   console.debug("Renaming class page")
 
   // get sync storage
@@ -224,7 +247,7 @@ function renameClassPage() {
     if (classes[class_id] === undefined) {
       console.log("Class not found in storage");
     } else {
-      getClassBoxClassPage().then((elements) => {
+      getClassBoxCoursePage().then((elements) => {
         elements[0].innerText = classes[class_id].subject;
         elements[1].innerText = classes[class_id].section;
       });
@@ -232,7 +255,7 @@ function renameClassPage() {
   });
 }
 
-function renameClassHeader() {
+function renameCourseHeader() {
   console.debug("Renaming class header");
 
   getClassHeaderObject().then((element) => {
@@ -276,7 +299,7 @@ function renameClassHeader() {
 
         }
 
-        if (document.location.pathname.match(ASSIGNMENT_REGEX) || document.location.pathname.match(CLASS_REGEX)) {
+        if (document.location.pathname.match(ASSIGNMENT_REGEX) || document.location.pathname.match(COURSE_REGEX)) {
           console.log("Stopping interval");
           clearInterval(intervalId);
         }
@@ -300,14 +323,14 @@ function renameClassHeader() {
 
 
 
-function getClassBoxClassPage() {
+function getClassBoxCoursePage() {
   // return promise
   return new Promise((resolve, reject) => {
-    const elements = document.getElementsByClassName(CLASSBOX_CLASSPAGE);
+    const elements = document.getElementsByClassName(CLASSBOX_COURSEPAGE);
     // keep trying until elements are available, then resolve
     if (elements.length === 0) {
       setTimeout(() => {
-        resolve(getClassBoxClassPage());
+        resolve(getClassBoxCoursePage());
       }, 100);
     } else {
       const h1 = elements[0].getElementsByTagName("h1")[0];
@@ -319,14 +342,14 @@ function getClassBoxClassPage() {
 
 
 
-function getClassElementsHomePage() {
+function getCourseElementsHomePage() {
   // return promise
   return new Promise((resolve, reject) => {
     const elements = document.getElementsByClassName(CLASSBOX_HOMEPAGE);
     // keep trying until elements are available, then resolve
     if (elements.length === 0) {
       setTimeout(() => {
-        resolve(getClassElementsHomePage());
+        resolve(getCourseElementsHomePage());
       }, 100);
     } else {
       resolve(elements);
@@ -349,6 +372,7 @@ function getClassHeaderObject() {
   });
 }
 
+let EDITMODE = false;
 
 /*
 const pathObserver = new MutationObserver((mutations) => {
