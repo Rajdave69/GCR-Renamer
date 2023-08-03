@@ -373,14 +373,3 @@ function getClassHeaderObject() {
 }
 
 let EDITMODE = false;
-
-/*
-const pathObserver = new MutationObserver((mutations) => {
-  mutations.forEach((mutation) => {
-      console.log("There was a mutation")
-    if (mutation.addedNodes.length) {
-      // renameHomeClasses();
-    }
-  });
-});
-*/
