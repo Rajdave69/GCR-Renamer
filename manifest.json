@@ -1,6 +1,6 @@
 {
   "name": "GCR Renamer",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "manifest_version": 3,
   "background": {
     "service_worker": "./js/background.js"
