@@ -21,8 +21,8 @@ Data structure:
  */
 
 // The classes of the `a` tag which make up a GCR class's names
-const CLASSBOX_HOMEPAGE = "onkcGd eDfb1d YVvGBb Vx8Sxd";
-const CLASSBOX_COURSEPAGE = "T4tcpe PagUde";
+const HOMEPAGE_NAMEBOX = "onkcGd eDfb1d YVvGBb Vx8Sxd";
+const COURSEPAGE_NAMEBOX = "T4tcpe PagUde";
 const SECTION_INDEX = 1;
 const SUBJECT_INDEX = 0;
 const CLASSBOX_HEADER = "onkcGd OGhwGf";
@@ -40,8 +40,8 @@ console.log("GCR Class Renamer");
 
 // If home page is opened
 if (
-    document.location.pathname.match(HOME_REGEX) || // If it is /u/{number}/h
-    document.location.pathname === "/"
+  document.location.pathname.match(HOME_REGEX) || // If it is /u/{number}/h
+  document.location.pathname === "/"
 ) {
   console.log("Home page");
   window.addEventListener("load", renameHomePage);
@@ -73,7 +73,6 @@ else if (document.location.pathname.match(ASSIGNMENT_REGEX)) {
 
 
 let oldPathname = document.location.pathname;
-let oldInnerText = "";
 
 // Mutation Observer for path change
 const pathObserver = new MutationObserver((mutations) => {
@@ -112,7 +111,6 @@ pathObserver.observe(document, {
   subtree: true,
   attributeFilter: ['href']
 });
-
 
 
 
