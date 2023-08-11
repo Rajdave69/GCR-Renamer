@@ -122,8 +122,11 @@ pathObserver.observe(document, {
 //
 
 
+
+
 function renameHomePage() {
-  getCourseElementsHomePage().then((elements) => {
+  let convertedData = undefined;
+  getElementsByClassName(HOMEPAGE_NAMEBOX).then((elements) => {
     // get sync storage
     chrome.storage.sync.get((result) => {
 
@@ -181,17 +184,20 @@ function renameHomePage() {
           const divs = elements[i].getElementsByTagName("div");
 
           // div[0] is the subject div, div[1] is the section div
-          divs[SUBJECT_INDEX].innerText = classes[class_id].subject;
-          divs[SECTION_INDEX].innerText = classes[class_id].section;
+          if (classes[class_id].subject !== undefined) {
+            divs[SUBJECT_INDEX].innerText = classes[class_id].subject;
+          }
+          if (classes[class_id].section !== undefined) {
+            divs[SECTION_INDEX].innerText = classes[class_id].section;
+          }
+
+          createRenameButton()
 
           // keep checking every second for change in elements[1].innerText
           // if it changes, then rerun the function
 
           const IntervalId = setInterval(() => {
             if ((document.location.pathname).match(HOME_REGEX) === null) {
-              clearInterval(IntervalId);
-            }
-            if (EDITMODE) {
               clearInterval(IntervalId);
             }
 
@@ -201,23 +207,6 @@ function renameHomePage() {
             if (divs[SUBJECT_INDEX].innerText !== classes[id].subject) {
               renameHomePage();
             }
-
-            // todo remove
-            // add button which does toggleEditMode() to bottom right of screen
-
-            // const button = document.createElement("button");
-            // button.innerText = "Toggle Edit Mode";
-            // button.style.position = "fixed";
-            // button.style.bottom = "0";
-            // button.style.right = "0";
-            // button.id = "potato"
-            // button.addEventListener("click", () => {
-            //   toggleEditMode();
-            // });
-            //
-            // document.body.appendChild(button);
-
-
 
           }, 2000);
 
@@ -245,7 +234,7 @@ function renameCoursePage() {
     if (classes[class_id] === undefined) {
       console.log("Class not found in storage");
     } else {
-      getClassBoxCoursePage().then((elements) => {
+      getElementsByClassName(COURSEPAGE_NAMEBOX).then((elements) => {
         elements[0].innerText = classes[class_id].subject;
         elements[1].innerText = classes[class_id].section;
       });
@@ -256,16 +245,16 @@ function renameCoursePage() {
 function renameCourseHeader() {
   console.debug("Renaming class header");
 
-  getClassHeaderObject().then((element) => {
+  getElementsByClassName(CLASSBOX_HEADER).then((element) => {
     console.log(element);
-    const class_id = (element.href).match(CLASSID_REGEX)?.[1];
+    const class_id = (element[0].href).match(CLASSID_REGEX)?.[1];
 
-    const hasSection = element.children.length === 2;
+    const hasSection = element[0].children.length === 2;
 
-    const subjectElement = element.children[SUBJECT_INDEX];
-    const sectionElement = element.children[SECTION_INDEX] || "";
+    const subjectElement = element[0].children[SUBJECT_INDEX];
+    const sectionElement = element[0].children[SECTION_INDEX] || "";
 
-    console.log(element.children)
+    console.log(element[0].children)
 
     console.log(subjectElement, sectionElement)
 
@@ -316,24 +305,17 @@ function renameCourseHeader() {
   });
 }
 
-
-
-
-
-
-function getClassBoxCoursePage() {
+function getElementsByClassName(classes, timeout = 100) {
   // return promise
   return new Promise((resolve, reject) => {
-    const elements = document.getElementsByClassName(CLASSBOX_COURSEPAGE);
+    const element = document.getElementsByClassName(classes);
     // keep trying until elements are available, then resolve
-    if (elements.length === 0) {
+    if (element.length === 0) {
       setTimeout(() => {
-        resolve(getClassBoxCoursePage());
-      }, 100);
+        resolve(getElementsByClassName(classes, timeout));
+      }, timeout);
     } else {
-      const h1 = elements[0].getElementsByTagName("h1")[0];
-      const div = elements[0].getElementsByTagName("div")[0];
-      resolve([h1, div]);
+      resolve(element);
     }
   });
 }
