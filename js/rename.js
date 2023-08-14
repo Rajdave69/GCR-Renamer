@@ -20,6 +20,13 @@ Data structure:
 }
  */
 
+/*
+Notes:
+- For the love of god, if you ever want to get a class id from anywhere use the CLASSID_REGEX and not the split method.
+
+ */
+
+
 // The classes of the `a` tag which make up a GCR class's names
 const HOMEPAGE_NAMEBOX = "onkcGd eDfb1d YVvGBb Vx8Sxd";
 const COURSEPAGE_NAMEBOX = "T4tcpe PagUde";
