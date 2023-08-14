@@ -127,40 +127,51 @@ pathObserver.observe(document, {
 function renameHomePage() {
   let convertedData = undefined;
   getElementsByClassName(HOMEPAGE_NAMEBOX).then((elements) => {
+    chrome.storage.local.get((result) => {
+      console.log(result)
+
+      if (result['class_list'] !== undefined) {
+        console.log("owo")
+        // convert from the old storage method
+        // old storage format - ['class_list] dict: {"subject_names": list[str], "section_names": list[str]}
+
+        let tempDict = {}
+
+        // get list of class ids from the page
+        for (let i = 0; i < elements.length; i++) {
+          const class_id = elements[i].href.split("/").pop();
+          tempDict[class_id] = {
+            "subject": result['class_list']['subject_names'][i],
+            "section": result['class_list']['section_names'][i]
+          }
+        }
+
+        // set the new storage format
+        chrome.storage.sync.set(tempDict, () => {
+          console.log(tempDict)
+          convertedData = tempDict
+          console.log("Converted storage format")
+          chrome.storage.local.remove('class_list')
+
+        })
+
+      }
+
+    })
+
+
     // get sync storage
     chrome.storage.sync.get((result) => {
 
-      // If the user is using the legacy storage system, convert it to the new system
-      if (result['backup'] !== undefined) {
-        // empty whole storage
-        chrome.storage.sync.clear();
 
-        // todo tell user that storage was cleared
 
-        // if the user has no data set
-      } else if (result === undefined || result === null || Object.keys(result).length === 0) {
-        // todo tell user that storage is empty
+      // if the user has no data set
+      if (result === undefined || result === null || Object.keys(result).length === 0) {
         console.log("Storage is empty");
 
-        chrome.storage.sync.set({ // todo remove this
+        createRenameButton()
 
-          "NTk4NDQyOTI0MjAx": {
-            "subject": "Main Class Group",
-            "section": "E"
-          },
-          "NTk4NDA0NTIwMzc3": {
-            "subject": "Math",
-            "section": "section2"
-          },
-          "NTQzNDg1Mzc0NDU2": {
-            "subject": "Chemistry",
-            "section": "section3"
-          },
-          "NTk5NDUxNzQ4NjEy": {
-            "subject": "History",
-            "section": "section4"
-          }
-        });
+        alert("You have no custom class names set. Please click the edit button (bottom right after you close this popup) to set custom names");
 
         // if courses are found in storage
       } else {
