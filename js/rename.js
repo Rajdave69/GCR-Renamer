@@ -146,7 +146,9 @@ function renameHomePage() {
 
         // get list of class ids from the page
         for (let i = 0; i < elements.length; i++) {
-          const class_id = elements[i].href.split("/").pop();
+          // const class_id = elements[i].href.split("/").pop();
+          const class_id = (elements[i]).match(CLASSID_REGEX)?.[1];
+          console.log(class_id)
           tempDict[class_id] = {
             "subject": result['class_list']['subject_names'][i],
             "section": result['class_list']['section_names'][i]
@@ -170,8 +172,6 @@ function renameHomePage() {
     // get sync storage
     chrome.storage.sync.get((result) => {
 
-
-
       // if the user has no data set
       if (result === undefined || result === null || Object.keys(result).length === 0) {
         console.log("Storage is empty");
@@ -190,7 +190,8 @@ function renameHomePage() {
         // loop through the classes
         for (let i = 0; i < elements.length; i++) {
           // Get the class id from the `a` element's href
-          const class_id = elements[i].href.split("/").pop();
+          const class_id = (elements[i].href).match(CLASSID_REGEX)?.[1];
+          console.log(class_id)
 
           // If the class doesn't have a section or subject defined in storage, skip it
           if (classes[class_id] === undefined) {
@@ -220,7 +221,7 @@ function renameHomePage() {
             }
 
             const divs = elements[0].getElementsByTagName("div");
-            const id = elements[0].href.split("/").pop();
+            const id = (elements[0].href).match(CLASSID_REGEX)?.[1];
 
             if (divs[SUBJECT_INDEX].innerText !== classes[id].subject) {
               renameHomePage();
@@ -340,20 +341,19 @@ function getElementsByClassName(classes, timeout = 100) {
 
 
 
-function getCourseElementsHomePage() {
-  // return promise
-  return new Promise((resolve, reject) => {
-    const elements = document.getElementsByClassName(CLASSBOX_HOMEPAGE);
-    // keep trying until elements are available, then resolve
-    if (elements.length === 0) {
-      setTimeout(() => {
-        resolve(getCourseElementsHomePage());
-      }, 100);
-    } else {
-      resolve(elements);
     }
   });
-}
+
+  // Get background image elements
+  getElementsByClassName('OjOEXb Gf8MK').then((divs) => {
+    for (let i = 0; i < divs.length; i++) {
+      // Get the backgroud-image style and extract the url
+      const background = divs[i].style.backgroundImage.slice(4, -1).replace(/"/g, "");
+      backgrounds.push(background);
+
+    }
+  });
+        }
 
 function getClassHeaderObject() {
   // return promise
@@ -370,4 +370,4 @@ function getClassHeaderObject() {
   });
 }
 
-let EDITMODE = false;
+let BUTTON_CREATED = false;
