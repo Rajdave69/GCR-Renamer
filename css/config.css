@@ -1,0 +1,284 @@
+.header {
+	text-align: center;
+	background: #4c5655;
+	color: white;
+	font-size: 30px;
+	margin-bottom: 30px;
+	padding-top: 40px;
+	padding-bottom: 20px;
+}
+
+#header-h1 {
+	font-size: 60px;
+	font-family: 'Kdam Thmor Pro', sans-serif;
+}
+
+#header-p {
+	font-size: 20px;
+	margin: auto;
+}
+
+/* Styles for the modal overlay (background) */
+.modal-overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	/* Semi-transparent background */
+	z-index: 1;
+}
+
+/* Style for the modal content (dialog) */
+.modal-content {
+	background-color: white;
+	width: 80%;
+	/* Set the width of the modal content */
+	max-width: 400px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+	position: fixed;
+	padding: 20px;
+	text-align: center;
+	border-radius: 15px;
+}
+
+/* Close button */
+.close {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	padding: 5px 10px;
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	background: none;
+	border: none;
+}
+
+/* KEEP BELOW */
+.VfPpkd-Bz112c-LgbsSe {
+	font-size: 24px;
+	width: 48px;
+	height: 48px;
+	padding: 12px
+}
+
+.VfPpkd-Bz112c-LgbsSe {
+	display: inline-block;
+	position: relative;
+	box-sizing: border-box;
+	border: none;
+	outline: none;
+	background-color: transparent;
+	fill: currentColor;
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+	-webkit-user-select: none;
+	user-select: none;
+	z-index: 0;
+	overflow: visible
+}
+
+.VfPpkd-Bz112c-J1Ukfc-LhBDec {
+	pointer-events: none;
+	border: 2px solid transparent;
+	border-radius: 6px;
+	box-sizing: content-box;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	height: 100%;
+	width: 100%;
+	display: none
+}
+
+.Vx8Sxd,
+.Vx8Sxd:visited,
+.Vx8Sxd:hover,
+.Vx8Sxd:focus {
+	color: #fff
+}
+
+.oxacD.mUbCce,
+.oxacD.Y5FYJe,
+.oxacD.yHy1rc {
+	margin: -12px;
+	display: block
+}
+
+/* position of 3 dots on top right */
+.Nmpzvc {
+	-webkit-box-flex: 1;
+	-webkit-flex: 1 0 1rem;
+	flex: 1 0 1rem
+}
+
+/* text of section and course */
+.course-name {
+	font-family: "Google Sans", Roboto, Arial, sans-serif;
+	font-size: 1.375rem;
+	font-weight: 400;
+	line-height: 1.75rem;
+	color: #fff
+}
+
+/* pfp */
+.pfp-box {
+	-webkit-box-flex: 1;
+	-webkit-flex-grow: 1;
+	flex-grow: 1;
+	min-height: 0;
+	padding: .75rem 1rem 1rem;
+}
+
+.pfp-image {
+	border-radius: 50%;
+	float: right;
+	height: 4.6875rem;
+	position: relative;
+	margin-top: -3.09375rem;
+	width: 4.6875rem;
+	/* margin-right: 15px;
+     */
+}
+
+body {
+	color: rgba(0, 0, 0, .87);
+	font-family: "Roboto", Helvetica, Arial, sans-serif;
+	font-size: 0.8125rem;
+	font-weight: 400;
+	line-height: 1.25rem;
+	margin: 20px;
+	min-width: 18.75rem
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-size: inherit;
+	font-weight: inherit;
+	margin: 0
+}
+
+ul,
+ol {
+	list-style: none;
+	margin: 0;
+	padding: 0
+}
+
+p {
+	margin: 0
+}
+
+/* main box */
+.main-box {
+	background-clip: padding-box;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+	height: 18.375rem;
+	margin-bottom: 1.5rem;
+	margin-right: 1.5rem;
+	overflow: hidden;
+	position: relative;
+	text-align: left;
+	width: 18.75rem;
+	border: 1px solid #dadce0;
+	border-radius: 10px
+}
+
+/* bottom white section */
+.Tc9hUd {
+	position: relative
+}
+
+/* top white section */
+.OjOEXb,
+.ZizeYd,
+.O7utsb,
+.ZmqAt {
+	height: 100%;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 100%
+}
+
+.OjOEXb {
+	background-repeat: no-repeat;
+	background-size: cover
+}
+
+.R4EiSb {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+	-webkit-box-pack: justify;
+	-webkit-justify-content: space-between;
+	justify-content: space-between;
+	height: 4.5rem;
+	padding: 1rem 1rem .75rem;
+	position: relative
+}
+
+.prWPdf {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+	color: white
+}
+
+.main-box:hover {
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .25)
+}
+
+.course-details {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	display: block
+}
+
+.teacher-name-box {
+	-webkit-align-items: center;
+	align-items: center;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	flex-direction: row
+}
+
+#course-element-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	/* Adjust the gap between items as needed */
+	list-style: none;
+	/* Remove the default list styles */
+	padding: 0;
+	/* Remove padding from the ol element */
+	margin: 0;
+	/* Remove margin from the ol element */
+}
+
+/* Adjust the styling for the list items */
+li {
+	display: inline-block;
+}
