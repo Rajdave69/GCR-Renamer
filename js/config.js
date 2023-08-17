@@ -191,3 +191,96 @@ function ChangeDetector(targetElements) {
       previousValues[element] = currentValue;
     }
   }
+
+
+  // Add input event listener to each target element with debounce
+  targetElements.forEach((element) => {
+    previousValues[element] = element.innerText;
+    element.addEventListener("input", debounce(() => handleInputChange(element), 500)); // Adjust the delay (in milliseconds) as needed
+  });
+}
+
+
+
+
+// add event listener to DOMContentLoaded
+
+document.addEventListener("DOMContentLoaded", function (event) {
+  modal.showModal();
+
+  ChangeDetector(document.querySelectorAll(".course-name"));
+  ChangeDetector(document.querySelectorAll(".section-name"));
+});
+
+
+const modal = document.getElementById("myModal");
+const btnClose = document.getElementById("closeModal");
+
+// Close the modal
+btnClose.onclick = function() {
+  modal.close();
+}
+
+// Close the modal when the background is clicked
+modal.addEventListener("click", function(event) {
+  if (event.target === modal) {
+    modal.close();
+  }
+});
+
+// create 2 buttons bottom right, import and export settings
+
+const importButton = document.createElement("button");
+importButton.className = "import-button";
+importButton.textContent = "Import Settings";
+
+const exportButton = document.createElement("button");
+exportButton.className = "export-button";
+exportButton.textContent = "Export Settings";
+
+const buttonBox = document.createElement("div");
+buttonBox.className = "button-box";
+buttonBox.appendChild(importButton);
+buttonBox.appendChild(exportButton);
+
+document.body.appendChild(buttonBox);
+
+
+// add event listener to export button
+exportButton.addEventListener("click", function(event) {
+  // get the data
+  chrome.storage.sync.get().then((data) => {
+    console.log(data);
+
+    // convert to JSON
+    const dataJSON = JSON.stringify(data);
+    console.log(dataJSON);
+
+    // create a blob
+    const blob = new Blob([dataJSON], {type: "application/json"});
+
+    // create a URL
+    const url = URL.createObjectURL(blob);
+
+    // create a link
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "settings.json";
+
+    // click the link
+    link.click();
+  })
+})
+
+// clear sync storage
+const clearButton = document.createElement("button");
+clearButton.className = "clear-button";
+clearButton.textContent = "Clear Settings";
+
+document.body.appendChild(clearButton);
+
+clearButton.addEventListener("click", function(event) {
+  chrome.storage.sync.clear(() => {
+    console.log("Data cleared");
+  });
+})
