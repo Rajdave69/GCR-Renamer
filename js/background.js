@@ -9,3 +9,18 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     );
   }
 });
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+      console.log("e")
+    console.log(sender.tab ?
+                "from a content script:" + sender.tab.url :
+                "from the extension");
+    console.log(request.msg)
+
+    if (request.msg.startsWith("open_page"))
+      sendResponse({farewell: "goodbye"});
+
+      chrome.tabs.create({ url: request.msg.replace("open_page_", "") });
+  }
+);
