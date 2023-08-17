@@ -129,3 +129,65 @@ for (let i in courseIds) {
   });
 }
 
+
+
+function ChangeDetector(targetElements) {
+  // Select all elements with the classname "course-name"
+  // Debounce function
+  const debounce = (callback, delay) => {
+    let timerId;
+    return (...args) => {
+      clearTimeout(timerId);
+      timerId = setTimeout(() => {
+        callback(...args);
+      }, delay);
+    };
+  };
+
+  // Initialize an object to store previous innerText values
+  const previousValues = {};
+
+  // Function to handle changes for a specific element
+  const handleInputChange = (element) => {
+    const currentValue = element.innerText;
+    const previousValue = previousValues[element];
+
+    if (currentValue !== previousValue) {
+      // The innerText of the element has changed
+      console.log("New innerText for element:", element, currentValue);
+
+      // Find the courseId from the element id
+      const courseId = element.id.split("_")[2];
+      let elementType = element.id.split("_")[0]; // course or section
+      console.log(courseId)
+
+      if (elementType === "course") {
+        elementType = "subject";
+      }
+
+      // Update sync storage
+      // remember that the data format is - {"courseId": {"subject": "", "section": ""}, ... }
+      chrome.storage.sync.get().then((data) => {
+        console.log(data);
+
+        // add to the data
+        if (data[courseId] === undefined) {
+          data[courseId] = {};
+          data[courseId][elementType] = currentValue.replaceAll("\n", "");
+
+        } else {
+            data[courseId][elementType] = currentValue.replaceAll("\n", "")
+        }
+
+        console.log(data);
+
+        // set the data
+        chrome.storage.sync.set(data, () => {
+          console.log("Data saved");
+        });
+
+      })
+
+      previousValues[element] = currentValue;
+    }
+  }
