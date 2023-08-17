@@ -120,3 +120,12 @@ function createCourseElement(courseId, courseName, sectionName, teacherName, pfp
   });
 }
 
+
+for (let i in courseIds) {
+  createCourseElement(courseIds[i], courseNames[i], sectionNames[i], teacherNames[i], pfpUrls[i], backgrounds[i]).then((courseElement) => {
+    console.log(courseElement);
+    // const courseElementList = ;
+    document.getElementById('course-element-list').appendChild(courseElement);
+  });
+}
+
