@@ -43,7 +43,7 @@ const ASSIGNMENT_REGEX = /^\/u\/(\d+)\/c\/([a-zA-Z0-9]+)\/a\/([a-zA-Z0-9]+)\/det
 
 const CLASSID_REGEX = /c\/(.+?)(\/|$)/;
 
-console.log("GCR Class Renamer");
+console.log("GCR Renamer");
 
 // If home page is opened
 if (
@@ -340,6 +340,33 @@ function getElementsByClassName(classes, timeout = 100) {
 }
 
 
+function launchEditor() {
+  // this function will collect the data from the page and launch a URL with the data
+  // we need lists with the following -
+  //  courseIds=
+  //  courseNames=
+  //  sectionNames=
+  //  teacherNames=
+  //  pfpUrls=
+  //  backgrounds=
+
+  let courseIds = [];
+  let courseNames = [];
+  let sectionNames = [];
+  let teacherNames = [];
+  let pfpUrls = [];
+  let backgrounds = [];
+
+  getElementsByClassName(HOMEPAGE_NAMEBOX).then((elements) => {
+    for (let i = 0; i < elements.length; i++) {
+
+      // Get and add course id
+      courseIds.push((elements[i].href).match(CLASSID_REGEX)?.[1]);
+
+      // inside element, there are 2 divs. Innertext of each of them is the course name and section name respectively
+      const divs = elements[i].getElementsByTagName("div");
+      courseNames.push(divs[0].innerText);
+      sectionNames.push(divs[1].innerText);
 
     }
   });
@@ -353,21 +380,96 @@ function getElementsByClassName(classes, timeout = 100) {
 
     }
   });
-        }
 
-function getClassHeaderObject() {
-  // return promise
-  return new Promise((resolve, reject) => {
-    const element = document.getElementsByClassName(CLASSBOX_HEADER);
-    // keep trying until elements are available, then resolve
-    if (element.length === 0) {
-      setTimeout(() => {
-        resolve(getClassHeaderObject());
-      }, 100);
-    } else {
-      resolve(element[0]);
+  // Get teacher name elements
+  getElementsByClassName('Vx8Sxd YVvGBb jJIbcc').then((divs) => {
+    for (let i = 0; i < divs.length; i++) {
+      // Get the backgroud-image style and extract the url
+      teacherNames.push(divs[i].innerText);
     }
   });
+
+  // Get the teachers' profile picture elements
+  getElementsByClassName('PNzAWd').then((divs) => {
+    for (let i = 0; i < divs.length; i++) {
+      // Get the backgroud-image style and extract the url
+      pfpUrls.push(divs[i].src);
+    }
+  });
+
+  getElementsByClassName(HOMEPAGE_NAMEBOX).then((elements) => {
+    do {
+      console.log(courseIds, courseNames, sectionNames, teacherNames, pfpUrls, backgrounds)
+
+      // create the URL
+
+      const baseUrl = 'config.html';
+      const urlParams = new URLSearchParams();
+
+      urlParams.append('courseIds', courseIds.join(','));
+      urlParams.append('courseNames', courseNames.join(','));
+      urlParams.append('sectionNames', sectionNames.join(','));
+      urlParams.append('teacherNames', teacherNames.join(','));
+      urlParams.append('pfpUrls', pfpUrls.join(','));
+      urlParams.append('backgrounds', backgrounds.join(','));
+
+      const finalUrl = baseUrl + '?' + urlParams.toString();
+      console.log(finalUrl);
+
+
+
+      (async () => {
+        try {
+          await chrome.runtime.sendMessage({
+            msg: `open_page_${finalUrl}`
+          });
+        } catch (e) {
+          alert("There was an error. Please reload the page and try again.")
+          console.log(e);
+        }
+      })();
+
+
+      break;
+
+    }
+    while (
+      courseIds.length === elements.length ||
+      courseNames.length === elements.length ||
+      sectionNames.length === elements.length ||
+      teacherNames.length === elements.length ||
+      pfpUrls.length === elements.length ||
+      backgrounds.length === elements.length
+    ) {
+      // Wait until all the data is collected
+    }
+  });
+
+}
+
+
+
+function createRenameButton() {
+  if (BUTTON_CREATED) return;
+
+  const button = document.createElement("button");
+  button.innerText = "GCR Renamer\nLaunch Editor";
+  button.style.position = "fixed";
+  button.style.bottom = "20px";
+  button.style.right = "20px";
+  button.style.zIndex = "9999";
+  button.style.backgroundColor = "#4285F4";
+  button.style.color = "white";
+  button.style.borderRadius = "5px";
+
+  button.onclick = () => {
+    launchEditor();
+  }
+
+  document.body.appendChild(button);
+
+  BUTTON_CREATED = true;
+
 }
 
 let BUTTON_CREATED = false;
