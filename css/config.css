@@ -5,7 +5,7 @@
 	font-size: 30px;
 	margin-bottom: 30px;
 	padding-top: 40px;
-	padding-bottom: 20px;
+	padding-bottom: 40px;
 }
 
 #header-h1 {
@@ -281,4 +281,32 @@ p {
 /* Adjust the styling for the list items */
 li {
 	display: inline-block;
+}
+
+/* id `left` inside `button-box` */
+
+#left {
+	float: left;
+	padding-left: 10px;
+}
+
+/* id `right` inside `button-box` */
+
+
+#right {
+	float: right;
+	padding-right: 10px;
+}
+
+#button-box {
+	/*width: 100%;*/
+}
+
+button {
+	border-radius: 5px;
+	border: none;
+	padding: 4px;
+	margin: 4px;
+	font-family: "Patrick Hand SC", sans-serif;
+	background: lightgray;
 }
