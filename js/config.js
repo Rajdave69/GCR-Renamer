@@ -181,7 +181,7 @@ function ChangeDetector(targetElements) {
           data[courseId][elementType] = currentValue.replaceAll("\n", "");
 
         } else {
-            data[courseId][elementType] = currentValue.replaceAll("\n", "")
+          data[courseId][elementType] = currentValue.replaceAll("\n", "")
         }
 
         console.log(data);

@@ -168,7 +168,6 @@ function renameHomePage() {
 
     })
 
-
     // get sync storage
     chrome.storage.sync.get((result) => {
 
@@ -188,6 +187,8 @@ function renameHomePage() {
         console.log(result)
 
         // loop through the classes
+        createRenameButton()
+
         for (let i = 0; i < elements.length; i++) {
           // Get the class id from the `a` element's href
           const class_id = (elements[i].href).match(CLASSID_REGEX)?.[1];
@@ -202,32 +203,29 @@ function renameHomePage() {
           // Get the divs inside the `a` element
           const divs = elements[i].getElementsByTagName("div");
 
-          // div[0] is the subject div, div[1] is the section div
-          if (classes[class_id].subject !== undefined) {
-            divs[SUBJECT_INDEX].innerText = classes[class_id].subject;
-          }
-          if (classes[class_id].section !== undefined) {
-            divs[SECTION_INDEX].innerText = classes[class_id].section;
-          }
+          const revertChanges = () => {
+            if (divs[SUBJECT_INDEX].innerText !== classes[class_id].subject) {
+              divs[SUBJECT_INDEX].innerText = classes[class_id].subject;
+            }
+            if (divs[SECTION_INDEX].innerText !== classes[class_id].section) {
+              divs[SECTION_INDEX].innerText = classes[class_id].section;
+            }
+          };
 
-          createRenameButton()
-
-          // keep checking every second for change in elements[1].innerText
-          // if it changes, then rerun the function
-
-          const IntervalId = setInterval(() => {
-            if ((document.location.pathname).match(HOME_REGEX) === null) {
-              clearInterval(IntervalId);
+          const checkChanges = () => {
+            if (!document.location.pathname.match(HOME_REGEX)) {
+              clearInterval(intervalId);
+              console.debug("Cleared home page interval")
             }
 
-            const divs = elements[0].getElementsByTagName("div");
-            const id = (elements[0].href).match(CLASSID_REGEX)?.[1];
-
-            if (divs[SUBJECT_INDEX].innerText !== classes[id].subject) {
-              renameHomePage();
+            if (divs[SUBJECT_INDEX].innerText !== classes[class_id].subject) {
+              revertChanges();
             }
+          };
 
-          }, 2000);
+          revertChanges();
+          const intervalId = setInterval(checkChanges, 2000); // Check every second
+
 
         }
       }
@@ -243,19 +241,50 @@ function renameCoursePage() {
 
   // get sync storage
   chrome.storage.sync.get((result) => {
-    // get the classes
-    const classes = result;
 
     // Get the class id from the url
     const class_id = (document.location.pathname).match(CLASSID_REGEX)?.[1];
+    const classInfo = result[class_id];
 
     // If the class doesn't have a section or subject defined in storage, skip it
-    if (classes[class_id] === undefined) {
+    if (classInfo === undefined) {
       console.log("Class not found in storage");
+
     } else {
+
       getElementsByClassName(COURSEPAGE_NAMEBOX).then((elements) => {
-        elements[0].innerText = classes[class_id].subject;
-        elements[1].innerText = classes[class_id].section;
+
+        elements = elements[0].children;
+        const currentUrl = document.location.href;
+
+        console.log(elements)
+
+        const revertChanges = () => {
+          if (elements[0].innerText !== classInfo.subject) {
+            elements[0].innerText = classInfo.subject;
+          }
+          if (elements[1].innerText !== classInfo.section) {
+            elements[1].innerText = classInfo.section;
+          }
+        };
+
+        const checkChanges = () => {
+          if (currentUrl !== document.location.href) {
+            clearInterval(intervalId);
+            console.debug("Cleared class page interval")
+          }
+
+          if (elements[0].innerText !== classInfo.subject) {
+            revertChanges();
+          }
+        };
+
+        // run the revertChanges(); function 20times with 100ms delay
+        for (let i = 0; i < 20; i++) {
+          setTimeout(revertChanges, 100);
+        }
+
+        const intervalId = setInterval(checkChanges, 1000); // Check every second
       });
     }
   });
@@ -273,36 +302,30 @@ function renameCourseHeader() {
     const subjectElement = element[0].children[SUBJECT_INDEX];
     const sectionElement = element[0].children[SECTION_INDEX] || "";
 
-    console.log(element[0].children)
-
-    console.log(subjectElement, sectionElement)
-
     chrome.storage.sync.get((result) => {
-      const classdetails = result[class_id];
-
-      console.log(classdetails);
+      const resultDetails = result[class_id];
 
       console.log("Class header changed");
       // elements has two span elements as children
 
       const revertChanges = () => {
-        if (subjectElement.innerText !== classdetails.subject) {
-          subjectElement.innerText = classdetails.subject;
+        if (subjectElement.innerText !== resultDetails.subject) {
+          subjectElement.innerText = resultDetails.subject;
         }
         if (hasSection !== undefined) {
-          if (sectionElement.innerText !== classdetails.section) {
-            sectionElement.innerText = classdetails.section;
+          if (sectionElement.innerText !== resultDetails.section) {
+            sectionElement.innerText = resultDetails.section;
           }
         }
       };
 
       const checkChanges = () => {
-        console.debug("Checking for changes");
-        if (subjectElement.innerText !== classdetails.subject) {
-          console.log("Changes detected")
-          // Changes detected, revert them back
-          revertChanges();
+        if (!document.location.pathname.match(COURSE_REGEX) && !document.location.pathname.match(HOME_REGEX)) {
+          clearInterval(intervalId);
+        }
 
+        if (subjectElement.innerText !== resultDetails.subject) {
+          revertChanges();
         }
 
         if (document.location.pathname.match(ASSIGNMENT_REGEX) || document.location.pathname.match(COURSE_REGEX)) {
@@ -312,11 +335,9 @@ function renameCourseHeader() {
 
       };
 
-      const intervalId = setInterval(checkChanges, 2000); // Check every second
+      const intervalId = setInterval(checkChanges, 500); // Check every second
 
-      // Update the initial values
-      subjectElement.innerText = classdetails.subject;
-      if (hasSection !== undefined) sectionElement.innerText = classdetails.section;
+      revertChanges();
 
       // Cleanup the interval when needed
       // For example, clearInterval(intervalId) when you want to stop monitoring the changes
