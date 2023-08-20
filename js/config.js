@@ -13,6 +13,11 @@ backgrounds=
 
 */
 
+if (urlParams.get("clearData") === "true") {
+  chrome.storage.sync.clear(() => {
+    console.log("Data cleared");
+  });
+}
 
 
 const courseIds = urlParams.get('courseIds').split(',');
