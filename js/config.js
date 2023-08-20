@@ -222,70 +222,123 @@ const modal = document.getElementById("myModal");
 const btnClose = document.getElementById("closeModal");
 
 // Close the modal
-btnClose.onclick = function() {
+btnClose.onclick = function () {
   modal.close();
 }
 
 // Close the modal when the background is clicked
-modal.addEventListener("click", function(event) {
+modal.addEventListener("click", function (event) {
   if (event.target === modal) {
     modal.close();
   }
 });
 
-// create 2 buttons bottom right, import and export settings
-
-const importButton = document.createElement("button");
-importButton.className = "import-button";
-importButton.textContent = "Import Settings";
-
-const exportButton = document.createElement("button");
-exportButton.className = "export-button";
-exportButton.textContent = "Export Settings";
-
-const buttonBox = document.createElement("div");
-buttonBox.className = "button-box";
-buttonBox.appendChild(importButton);
-buttonBox.appendChild(exportButton);
-
-document.body.appendChild(buttonBox);
 
 
-// add event listener to export button
-exportButton.addEventListener("click", function(event) {
-  // get the data
-  chrome.storage.sync.get().then((data) => {
-    console.log(data);
 
-    // convert to JSON
-    const dataJSON = JSON.stringify(data);
-    console.log(dataJSON);
+function init() {
+  // Create buttons
 
-    // create a blob
-    const blob = new Blob([dataJSON], {type: "application/json"});
+  const clearButton = document.createElement("button");
+  clearButton.className = "clear-button";
+  clearButton.textContent = "Clear Settings";
 
-    // create a URL
-    const url = URL.createObjectURL(blob);
+  const importButton = document.createElement("button");
+  importButton.className = "import-button";
+  importButton.textContent = "Import Settings";
 
-    // create a link
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "settings.json";
+  const exportButton = document.createElement("button");
+  exportButton.className = "export-button";
+  exportButton.textContent = "Export Settings";
 
-    // click the link
-    link.click();
+  const saveButton =  document.createElement("button");
+  saveButton.textContent = "Save";
+
+
+  // Append the buttons to the button box
+  const buttonBoxLeft = document.getElementById("left");
+  const buttonBoxRight = document.getElementById("right");
+
+  buttonBoxLeft.appendChild(importButton);
+  buttonBoxLeft.appendChild(exportButton);
+  buttonBoxRight.appendChild(clearButton);
+  buttonBoxRight.appendChild(saveButton);
+
+
+  // Add event listeners to the buttons
+  clearButton.addEventListener("click", function (event) {
+    chrome.storage.sync.clear(() => {
+      console.log("Data cleared");
+    });
   })
-})
 
-// clear sync storage
-const clearButton = document.createElement("button");
-clearButton.className = "clear-button";
-clearButton.textContent = "Clear Settings";
+  importButton.addEventListener("click", function (event) {
+    return //todo
 
-document.body.appendChild(clearButton);
+    // open file dialog
+    const input = document.createElement('input');
+    input.type = 'json';
 
-clearButton.addEventListener("click", function(event) {
-  chrome.storage.sync.clear(() => {
-    console.log("Data cleared");
-  });
-})
+    input.onchange = e => {
+
+      // getting a hold of the file reference
+      const file = e.target.files[0];
+
+      // setting up the reader
+      const reader = new FileReader();
+      reader.readAsText(file, 'UTF-8');
+
+      // here we tell the reader what to do when it's done reading...
+      reader.onload = readerEvent => {
+        const content = readerEvent.target.result; // this is the content!
+        console.log(content);
+        // parse the content
+        const data = JSON.parse(content);
+        console.log(data);
+
+        // set the data
+        chrome.storage.sync.set(data, () => {
+          console.log("Data saved");
+        });
+
+        // reload the page
+        window.location.reload();
+      }
+    }
+
+    input.click();
+  })
+
+  exportButton.addEventListener("click", function (event) {
+    // get the data
+    chrome.storage.sync.get().then((data) => {
+      console.log(data);
+
+      // convert to JSON
+      const dataJSON = JSON.stringify(data);
+      console.log(dataJSON);
+
+      // create a blob
+      const blob = new Blob([dataJSON], {
+        type: "application/json"
+      });
+
+      // create a URL
+      const url = URL.createObjectURL(blob);
+
+      // create a link
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "settings.json";
+
+      // click the link
+      link.click();
+    })
+  })
+
+  saveButton.addEventListener('click', () => alert("Saving is not required. Your settings are automatically saved."))
+
+
+}
+
+init();
